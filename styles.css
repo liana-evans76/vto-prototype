@@ -135,6 +135,8 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
+  /* Reserve bottom space for composer + disclaimer so #vtoFlow footers sit above them (not under). */
+  --shell-composer-stack: max(124px, calc(100px + env(safe-area-inset-bottom, 0px)));
 }
 
 .nav {
@@ -1356,12 +1358,6 @@ body {
   border-top: 0.5px solid rgba(0, 0, 0, 0.06);
 }
 
-/* Full-screen #vtoFlow (.vto-flow z-index 40) fills shell-main; keep composer + disclaimer above it (even when .composer--vto is off, e.g. skin results). Product detail stays at 45. */
-.shell-main:has(#vtoFlow:not([hidden])) .composer,
-.shell-main:has(#vtoFlow:not([hidden])) .composer-footnote {
-  z-index: 42;
-}
-
 .composer__row {
   display: flex;
   align-items: flex-end;
@@ -1556,7 +1552,7 @@ textarea {
   font-family: inherit;
 }
 
-/* Product detail over chat + VTO; composer-with-VTO chrome sits at 42 so it stays above .vto-flow (40). */
+/* Product detail over chat + VTO (z-index above .vto-flow). */
 .product-detail {
   position: absolute;
   inset: 0;
@@ -1928,16 +1924,23 @@ textarea {
   background: rgba(0, 0, 0, 0.04);
 }
 
-/* Figma 396:31266 — Virtual Try-On: full-screen steps, composer-scoped chrome */
+/* Figma 396:31266 — Virtual Try-On: full-screen steps; bottom clears .shell-main composer + footnote. */
 .vto-flow {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 40;
   min-height: 0;
   background: var(--vto-canvas);
   color: var(--text-ink);
   border-radius: 0;
   overflow: hidden;
+}
+
+.shell-main:has(#vtoFlow:not([hidden])) .vto-flow {
+  bottom: var(--shell-composer-stack);
 }
 
 .vto-flow[hidden] {
