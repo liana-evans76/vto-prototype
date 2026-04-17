@@ -509,7 +509,6 @@ const el = {
   vtoSkinDiagResultsMarkers: /** @type {HTMLElement} */ (document.getElementById("vtoSkinDiagResultsMarkers")),
   vtoSkinDiagResultsCards: /** @type {HTMLElement} */ (document.getElementById("vtoSkinDiagResultsCards")),
   vtoSkinDiagResultsZoomOut: /** @type {HTMLButtonElement} */ (document.getElementById("vtoSkinDiagResultsZoomOut")),
-  vtoSelfieFileInput: /** @type {HTMLInputElement} */ (document.getElementById("vtoSelfieFileInput")),
   vtoSelfiePreviewImg: /** @type {HTMLImageElement} */ (document.getElementById("vtoSelfiePreviewImg")),
   vtoSelfieConfirmClose: /** @type {HTMLButtonElement} */ (document.getElementById("vtoSelfieConfirmClose")),
   vtoSelfieConfirmInfo: /** @type {HTMLButtonElement} */ (document.getElementById("vtoSelfieConfirmInfo")),
@@ -552,7 +551,6 @@ const el = {
   vtoLiveStubDone: /** @type {HTMLButtonElement} */ (document.getElementById("vtoLiveStubDone")),
   vtoStubLiveMode: /** @type {HTMLButtonElement} */ (document.getElementById("vtoStubLiveMode")),
   vtoSelfieTake: /** @type {HTMLButtonElement} */ (document.getElementById("vtoSelfieTake")),
-  vtoSelfieUploadPhoto: /** @type {HTMLButtonElement | null} */ (document.getElementById("vtoSelfieUploadPhoto")),
   composerRoot: /** @type {HTMLElement | null} */ (document.getElementById("composerRoot")),
   composerFootnote: /** @type {HTMLElement | null} */ (document.querySelector(".composer-footnote")),
   shellMain: /** @type {HTMLElement | null} */ (document.querySelector(".shell-main")),
@@ -910,7 +908,7 @@ function bumpChatGeneration() {
 /** @type {string | null} */
 let vtoSelfiePreviewUrl = null;
 
-/** Blob URL kept after a successful selfie try-on so chat can reopen without re-uploading. */
+/** Blob URL kept after a successful selfie try-on so chat can reopen without taking another photo. */
 let sessionPersistedSelfieUrl = /** @type {string | null} */ (null);
 
 /** True after the user accepts the shared terms sheet on a Makeup Try-On entry (session-wide skip for that flow). */
@@ -1045,12 +1043,6 @@ function applySelfieStubSkinDiagUi(isSkinDiagFlow) {
   if (el.vtoSelfieTake) {
     el.vtoSelfieTake.classList.toggle("vto-mode__btn--primary", isSkinDiagFlow);
     el.vtoSelfieTake.classList.toggle("vto-mode__btn--secondary", !isSkinDiagFlow);
-  }
-  if (el.vtoSelfieUploadPhoto) {
-    el.vtoSelfieUploadPhoto.hidden = !isSkinDiagFlow;
-    el.vtoSelfieUploadPhoto.classList.remove("vto-mode__btn--primary");
-    if (isSkinDiagFlow) el.vtoSelfieUploadPhoto.classList.add("vto-mode__btn--secondary");
-    else el.vtoSelfieUploadPhoto.classList.remove("vto-mode__btn--secondary");
   }
 }
 
@@ -3579,7 +3571,6 @@ function retakeVtoSelfie() {
     sessionPersistedSelfieUrl = null;
   }
   revokeVtoSelfiePreview();
-  el.vtoSelfieFileInput.value = "";
   showVtoSelfieStub();
   requestAnimationFrame(() => el.vtoSelfieTake.focus());
 }
@@ -4281,7 +4272,6 @@ function resetVtoFlowPanels() {
   tryOnShadeList = [];
   tryOnShadeIndex = 0;
   revokeVtoSelfiePreview();
-  el.vtoSelfieFileInput.value = "";
   el.vtoTermsCheckbox.checked = false;
   syncVtoConsentButton();
   if (vtoUserAcceptedTerms) {
@@ -4399,10 +4389,6 @@ function initVtoFlow() {
     void startVtoSelfieCamera();
   });
 
-  el.vtoSelfieUploadPhoto?.addEventListener("click", () => {
-    el.vtoSelfieFileInput?.click();
-  });
-
   el.vtoSelfieCameraClose.addEventListener("click", () => {
     clearVtoCaptureTimers();
     stopVtoCameraStream();
@@ -4412,22 +4398,6 @@ function initVtoFlow() {
 
   el.vtoSelfieCameraInfo.addEventListener("click", (e) => {
     e.preventDefault();
-  });
-
-  el.vtoSelfieFileInput.addEventListener("change", () => {
-    const file = el.vtoSelfieFileInput.files?.[0];
-    el.vtoSelfieFileInput.value = "";
-    if (!file || !file.type.startsWith("image/")) return;
-    if (sessionPersistedSelfieUrl) {
-      URL.revokeObjectURL(sessionPersistedSelfieUrl);
-      sessionPersistedSelfieUrl = null;
-    }
-    revokeVtoSelfiePreview();
-    vtoSelfiePreviewUrl = URL.createObjectURL(file);
-    el.vtoSelfiePreviewImg.src = vtoSelfiePreviewUrl;
-    el.vtoSelfiePreviewImg.alt = "Preview of selected selfie";
-    showVtoSelfieConfirm();
-    requestAnimationFrame(() => el.vtoSelfieUseImage.focus());
   });
 
   el.vtoSelfieConfirmClose.addEventListener("click", () => closeVtoFlow());
