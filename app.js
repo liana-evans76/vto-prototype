@@ -911,8 +911,11 @@ let vtoSelfiePreviewUrl = null;
 /** Blob URL kept after a successful selfie try-on so chat can reopen without re-uploading. */
 let sessionPersistedSelfieUrl = /** @type {string | null} */ (null);
 
-/** True after the user accepts VTO terms once this session (chat flow can skip the terms sheet). */
+/** True after the user accepts the shared terms sheet on a Makeup Try-On entry (session-wide skip for that flow). */
 let vtoUserAcceptedTerms = false;
+
+/** True after the user accepts the terms sheet during Skin Diagnosis (independent of {@link vtoUserAcceptedTerms}). */
+let skinDiagUserAcceptedTerms = false;
 
 /** Try-on opened from chat “named product” path: single shade + selfie-backed mini card. */
 let tryOnFromChatSingleProduct = false;
@@ -938,6 +941,9 @@ let tryOnShadeList = [];
 
 /** @type {number} */
 let tryOnShadeIndex = 0;
+
+/** Matches {@link vtoSelectedProductKey} when try-on shade chips were built (for “Where to buy” shade parity). */
+let tryOnShadeContextKey = /** @type {string | null} */ (null);
 
 /** When true, try-on uses the provided reference model image. */
 let tryOnUseReferenceModel = false;
@@ -1076,6 +1082,7 @@ function resetSkinDiagSessionFlags() {
   chatAwaitingSkinDiagConfirm = false;
   chatAwaitingSkinRoutineChoice = false;
   chatSkinRoutineConcernId = null;
+  skinDiagUserAcceptedTerms = false;
 }
 
 function startSkinDiagChat() {
@@ -1138,7 +1145,7 @@ function launchSkinDiagAfterConfirm() {
     el.composerRoot?.classList.remove("composer--vto");
     setComposerForChatMode();
   }
-  if (!vtoUserAcceptedTerms) {
+  if (!skinDiagUserAcceptedTerms) {
     showVtoTermsOnly();
     el.vtoTermsCheckbox.checked = false;
     syncVtoConsentButton();
@@ -1205,45 +1212,91 @@ function appendUserBubble(text) {
 }
 
 /**
+ * Splits non-empty text nodes in a block into word-ish spans for streaming reveal.
+ * @param {HTMLElement} block
+ * @returns {HTMLElement[]}
+ */
+function tokenizeAssistantTextBlock(block) {
+  const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+  /** @type {Text[]} */
+  const textNodes = [];
+  let n = walker.nextNode();
+  while (n) {
+    const t = /** @type {Text} */ (n);
+    if (t.nodeValue && t.nodeValue.trim().length > 0) textNodes.push(t);
+    n = walker.nextNode();
+  }
+
+  /** @type {HTMLElement[]} */
+  const tokens = [];
+  for (const tn of textNodes) {
+    const value = tn.nodeValue || "";
+    const parts = value.split(/(\s+)/);
+    const frag = document.createDocumentFragment();
+    for (const part of parts) {
+      if (!part) continue;
+      if (/^\s+$/.test(part)) {
+        frag.appendChild(document.createTextNode(part));
+        continue;
+      }
+      const span = document.createElement("span");
+      span.className = "assistant-stream__tok";
+      span.textContent = part;
+      frag.appendChild(span);
+      tokens.push(span);
+    }
+    tn.parentNode?.replaceChild(frag, tn);
+  }
+  return tokens;
+}
+
+/**
  * Applies a lightweight word-by-word reveal to assistant prose.
  * This preserves inline tags (e.g. <strong>) by only replacing text nodes.
  * @param {HTMLElement} root
  */
 function streamAssistantText(root) {
   if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
-  const textBlocks = root.querySelectorAll(".assistant-text");
-  for (const block of textBlocks) {
-    const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
-    /** @type {Text[]} */
-    const textNodes = [];
-    let n = walker.nextNode();
-    while (n) {
-      const t = /** @type {Text} */ (n);
-      if (t.nodeValue && t.nodeValue.trim().length > 0) textNodes.push(t);
-      n = walker.nextNode();
-    }
 
-    /** @type {HTMLElement[]} */
-    const tokens = [];
-    for (const tn of textNodes) {
-      const value = tn.nodeValue || "";
-      const parts = value.split(/(\s+)/);
-      const frag = document.createDocumentFragment();
-      for (const part of parts) {
-        if (!part) continue;
-        if (/^\s+$/.test(part)) {
-          frag.appendChild(document.createTextNode(part));
+  const seqRoot = root.querySelector('.where-buy[data-assistant-stream="sequential"]');
+  if (seqRoot) {
+    const blocks = Array.from(seqRoot.querySelectorAll(":scope > .assistant-text")).filter((b) => b instanceof HTMLElement);
+    /** @type {{ block: HTMLElement; tokens: HTMLElement[] }[]} */
+    const jobs = [];
+    for (const block of blocks) {
+      const tokens = tokenizeAssistantTextBlock(block);
+      if (tokens.length) block.classList.add("assistant-text--streaming");
+      jobs.push({ block, tokens });
+    }
+    let ji = 0;
+    let idx = 0;
+    const tickMs = 26;
+    const tick = () => {
+      while (ji < jobs.length) {
+        const { block, tokens } = jobs[ji];
+        if (idx >= tokens.length) {
+          if (tokens.length) block.classList.remove("assistant-text--streaming");
+          ji += 1;
+          idx = 0;
           continue;
         }
-        const span = document.createElement("span");
-        span.className = "assistant-stream__tok";
-        span.textContent = part;
-        frag.appendChild(span);
-        tokens.push(span);
+        tokens[idx].classList.add("is-visible");
+        idx += 1;
+        scrollMainToBottom();
+        window.setTimeout(tick, tickMs);
+        return;
       }
-      tn.parentNode?.replaceChild(frag, tn);
-    }
+      scrollMainToBottom();
+    };
+    window.setTimeout(tick, tickMs);
+    return;
+  }
 
+  const textBlocks = root.querySelectorAll(".assistant-text");
+  for (const block of textBlocks) {
+    if (!(block instanceof HTMLElement)) continue;
+    if (block.closest('.where-buy[data-assistant-stream="sequential"]')) continue;
+    const tokens = tokenizeAssistantTextBlock(block);
     if (tokens.length === 0) continue;
     block.classList.add("assistant-text--streaming");
     let idx = 0;
@@ -1269,11 +1322,14 @@ function appendAssistantBlock(html, withAnim = true) {
   removeTyping();
   const wrap = document.createElement("div");
   wrap.className = `msg msg--assistant${withAnim ? " msg-anim" : ""}`;
-  wrap.innerHTML = `<div class="assistant-msg"><div class="assistant-surface">${html}</div>${assistantFeedbackRowHtml()}</div>`;
+  /** VTO lip/foundation carousels already include {@link convActionsHTML} (thumbs + actions). */
+  const hasInlineConvActions = html.includes("conv-actions");
+  const feedbackHtml = hasInlineConvActions ? "" : assistantFeedbackRowHtml();
+  wrap.innerHTML = `<div class="assistant-msg"><div class="assistant-surface">${html}</div>${feedbackHtml}</div>`;
   el.chatView.appendChild(wrap);
   wrap.querySelectorAll("[data-product-carousel]").forEach((host) => wireProductCarousel(/** @type {HTMLElement} */ (host)));
   wrap.querySelectorAll("[data-skin-routine-widget]").forEach((widget) => wireSkinRoutineWidget(/** @type {HTMLElement} */ (widget)));
-  wireAssistantFeedback(wrap);
+  if (!hasInlineConvActions) wireAssistantFeedback(wrap);
   if (withAnim) streamAssistantText(wrap);
   scrollMainToBottom();
 }
@@ -1478,15 +1534,17 @@ function buildWhereToBuyMessageHtml(p) {
     )
     .join("");
 
-  return `<div class="where-buy">
+  return `<div class="where-buy" data-assistant-stream="sequential">
     <div class="assistant-text">
       <p>
         Here is a quick way to get oriented in the <strong>U.S.</strong> for <strong>${escapeHtml(p.title)}</strong>
         <span class="where-buy__shade">(${escapeHtml(p.shadeLabel)})</span>. I can help you compare listings (price, shipping, minis vs. full size, return policies) and flag things to watch for with third-party sellers—I can not check out for you or see live inventory, but I can narrow options once you tell me what you care about most.
       </p>
     </div>
-    <p class="where-buy__label">Places to start</p>
-    <ul class="where-buy__list" role="list">${tilesHtml}</ul>
+    <div class="assistant-text where-buy__retailers">
+      <p class="where-buy__label">Places to start</p>
+      <ul class="where-buy__list" role="list">${tilesHtml}</ul>
+    </div>
     <div class="assistant-text where-buy__follow">
       <p>
         Want to keep going? Tell me if you would like <strong>other shades</strong> in the same finish, <strong>similar products</strong> at a different price point, or another round of <strong>try-on</strong> picks—I can pull a shortlist from here.
@@ -2595,6 +2653,23 @@ function routinePickToWhereToBuyProduct(pick) {
   };
 }
 
+/** Product row for the “Where to buy” chat message (matches detail sheet + active try-on shade when applicable). */
+function productForWhereToBuyFromDetail() {
+  const pick = productDetailKind === "skin_routine" ? productDetailSkinRoutinePick : null;
+  if (pick) return routinePickToWhereToBuyProduct(pick);
+  const { product } = getVtoProduct();
+  const key = vtoSelectedProductKey;
+  const ctx = key ? `${key.catalog}:${key.tier}:${key.index}` : "";
+  const tryOnOpen = !!(el.vtoTryOnPanel && !el.vtoTryOnPanel.hidden);
+  const cur = tryOnShadeList[tryOnShadeIndex];
+  const shadesMatchProduct =
+    tryOnOpen && !tryOnFromChatSingleProduct && cur && tryOnShadeContextKey && tryOnShadeContextKey === ctx;
+  if (shadesMatchProduct) {
+    return { ...product, shadeLabel: cur.label, swatch: cur.hex };
+  }
+  return product;
+}
+
 function productDetailTagsRowHTML(p) {
   const primary = `<span class="tag-chip product-detail__tag-pill">${escapeHtml(p.badgePrimary)}</span>`;
   const tagChips = p.tags
@@ -3048,6 +3123,8 @@ async function runTryOnFaceLandmarks() {
 
 /** @param {typeof PRODUCTS.luxury[0]} p */
 function applyTryOnProductChrome(p) {
+  const k = vtoSelectedProductKey;
+  tryOnShadeContextKey = k ? `${k.catalog}:${k.tier}:${k.index}` : null;
   el.vtoTryOnMiniTitle.textContent = p.title;
   const selfieForMini = vtoSelfiePreviewUrl || sessionPersistedSelfieUrl;
   if (el.vtoTryOnMiniPhoto) {
@@ -3293,8 +3370,7 @@ function initProductDetail() {
 
   el.productDetailBuy.addEventListener("click", () => {
     void (async () => {
-      const pick = productDetailKind === "skin_routine" ? productDetailSkinRoutinePick : null;
-      const product = pick ? routinePickToWhereToBuyProduct(pick) : getVtoProduct().product;
+      const product = productForWhereToBuyFromDetail();
       closeProductDetail();
       enterChatView();
       chatGenerationEpoch += 1;
@@ -4119,6 +4195,9 @@ function resetVtoFlowPanels() {
   teardownTryOnFaceLandmarker();
   tryOnResizeObserver?.disconnect();
   tryOnResizeObserver = null;
+  tryOnShadeContextKey = null;
+  tryOnShadeList = [];
+  tryOnShadeIndex = 0;
   revokeVtoSelfiePreview();
   el.vtoSelfieFileInput.value = "";
   el.vtoTermsCheckbox.checked = false;
@@ -4202,6 +4281,9 @@ function initVtoFlow() {
   el.vtoConsentBtn.addEventListener("click", () => {
     if (!el.vtoTermsCheckbox.checked) return;
     vtoUserAcceptedTerms = true;
+    if (skinDiagFlowActive || vtoSkinBrandExperienceActive) {
+      skinDiagUserAcceptedTerms = true;
+    }
     goVtoStepAfterConsent();
   });
 

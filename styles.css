@@ -229,7 +229,7 @@ body {
   overflow-x: hidden;
   background: var(--surface);
   -webkit-overflow-scrolling: touch;
-  scroll-padding-bottom: calc(116px + env(safe-area-inset-bottom, 0px));
+  scroll-padding-bottom: 24px;
 }
 
 .entry {
@@ -571,7 +571,7 @@ body {
 }
 
 .chat {
-  padding: 8px 0 calc(124px + env(safe-area-inset-bottom, 0px));
+  padding: 8px 0 24px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -728,6 +728,14 @@ body {
 .where-buy__shade {
   font-weight: 500;
   color: var(--text-secondary);
+}
+
+.where-buy__retailers {
+  padding-top: 4px;
+}
+
+.where-buy__retailers .where-buy__label {
+  margin-top: 0;
 }
 
 .where-buy__label {
