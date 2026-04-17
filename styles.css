@@ -136,7 +136,8 @@ body {
   display: flex;
   flex-direction: column;
   /* Reserve bottom space for composer + disclaimer so #vtoFlow footers sit above them (not under). */
-  --shell-composer-stack: max(124px, calc(100px + env(safe-area-inset-bottom, 0px)));
+  /* JS sets the exact pixel value via syncShellComposerStackVar(); this is a first-paint fallback only. */
+  --shell-composer-stack: calc(96px + env(safe-area-inset-bottom, 0px));
 }
 
 .nav {
@@ -1082,6 +1083,11 @@ body {
   display: block;
 }
 
+.product-card[data-brand="maybelline"] .product-card__photo {
+  object-fit: contain;
+  object-position: center;
+}
+
 .tube {
   width: 20px;
   height: 78px;
@@ -1643,6 +1649,11 @@ textarea {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.product-detail__slide[data-brand="maybelline"] .product-detail__slide-photo {
+  object-fit: contain;
+  object-position: center;
 }
 
 .product-detail--routine .product-detail__slide {
@@ -2240,6 +2251,10 @@ textarea {
   object-fit: cover;
   object-position: center;
   border-radius: inherit;
+}
+
+.vto-tryon__mini-photo[src*="mny-"] {
+  object-fit: contain;
 }
 
 .vto-tryon__mini-thumb--selfie-under {

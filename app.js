@@ -554,6 +554,8 @@ const el = {
   vtoSelfieTake: /** @type {HTMLButtonElement} */ (document.getElementById("vtoSelfieTake")),
   vtoSelfieUploadPhoto: /** @type {HTMLButtonElement | null} */ (document.getElementById("vtoSelfieUploadPhoto")),
   composerRoot: /** @type {HTMLElement | null} */ (document.getElementById("composerRoot")),
+  composerFootnote: /** @type {HTMLElement | null} */ (document.querySelector(".composer-footnote")),
+  shellMain: /** @type {HTMLElement | null} */ (document.querySelector(".shell-main")),
   composerPlus: /** @type {HTMLButtonElement | null} */ (document.getElementById("composerPlus")),
   composerAppMenu: /** @type {HTMLElement | null} */ (document.getElementById("composerAppMenu")),
   composerAppMenuBackdrop: /** @type {HTMLButtonElement | null} */ (document.getElementById("composerAppMenuBackdrop")),
@@ -1804,8 +1806,9 @@ function tagsHTML(tags) {
 }
 
 function productCardHTML(p, tier, index, catalog = "lips") {
+  const brandAttr = p.brand === "Maybelline" ? ` data-brand="maybelline"` : "";
   return `
-    <article class="product-card" aria-label="${escapeAttr(p.title)}" data-tier="${tier}" data-product-index="${index}" data-catalog="${catalog}">
+    <article class="product-card" aria-label="${escapeAttr(p.title)}" data-tier="${tier}" data-product-index="${index}" data-catalog="${catalog}"${brandAttr}>
       <div class="product-card__header" aria-hidden="true"></div>
       <div class="product-card__content">
         <div class="product-card__media">
@@ -2472,6 +2475,7 @@ async function sendUserMessage(text, promptMeta) {
 function autosizeComposer() {
   el.input.style.height = "0px";
   el.input.style.height = `${Math.min(el.input.scrollHeight, 120)}px`;
+  requestAnimationFrame(() => syncShellComposerStackVar());
 }
 
 function updateComposerTextState() {
@@ -2591,8 +2595,9 @@ function initComposer() {
 const PRODUCT_DETAIL_SLIDES = 3;
 
 function productDetailSlideHTML(p) {
+  const brandAttr = p.brand === "Maybelline" ? ` data-brand="maybelline"` : "";
   return `
-    <div class="product-detail__slide">
+    <div class="product-detail__slide"${brandAttr}>
       <img class="product-detail__slide-photo" src="${escapeAttr(p.cardImage)}" alt="" loading="lazy" decoding="async" />
     </div>`;
 }
@@ -3716,6 +3721,35 @@ function setVtoComposerChrome(active) {
     ph = ta.dataset.placeholderSkincare || "Ask about skincare...";
   }
   ta.placeholder = ph;
+  requestAnimationFrame(() => syncShellComposerStackVar());
+}
+
+/** Sets `--shell-composer-stack` on `.shell-main` to the measured composer + footnote height (flush with #vtoFlow). */
+function syncShellComposerStackVar() {
+  const shell = el.shellMain;
+  const root = el.composerRoot;
+  if (!shell || !root) return;
+  const foot = el.composerFootnote;
+  const h = Math.ceil(root.offsetHeight + (foot?.offsetHeight ?? 0));
+  shell.style.setProperty("--shell-composer-stack", `${Math.max(h, 1)}px`);
+}
+
+let shellComposerStackResizeTimer = /** @type {number | null} */ (null);
+
+function initShellComposerStackObserver() {
+  const root = el.composerRoot;
+  if (!el.shellMain || !root) return;
+  syncShellComposerStackVar();
+  window.addEventListener("resize", () => {
+    if (shellComposerStackResizeTimer != null) window.clearTimeout(shellComposerStackResizeTimer);
+    shellComposerStackResizeTimer = window.setTimeout(() => {
+      shellComposerStackResizeTimer = null;
+      syncShellComposerStackVar();
+    }, 50);
+  });
+  const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => syncShellComposerStackVar()) : null;
+  ro?.observe(root);
+  if (el.composerFootnote) ro?.observe(el.composerFootnote);
 }
 
 function clearSkinDiagPostQuizTimer() {
@@ -4450,6 +4484,7 @@ function initNavChat() {
 
 renderPrompts();
 initComposer();
+initShellComposerStackObserver();
 initProductDetail();
 initVtoFlow();
 initNavChat();
