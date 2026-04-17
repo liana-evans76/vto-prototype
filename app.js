@@ -956,8 +956,15 @@ const TRYON_REFERENCE_BEFORE_IMAGE = "assets/tryon-group1-before.png";
 const TRYON_REFERENCE_AFTER_IMAGE = "assets/tryon-group2-after.png";
 
 function scrollMainToBottom() {
+  const sc = el.mainScroll;
   requestAnimationFrame(() => {
-    el.mainScroll.scrollTop = el.mainScroll.scrollHeight;
+    requestAnimationFrame(() => {
+      sc.scrollTop = sc.scrollHeight;
+      const last = sc.querySelector("#chatView .msg:last-of-type");
+      if (last instanceof HTMLElement) {
+        last.scrollIntoView({ block: "end", behavior: "auto" });
+      }
+    });
   });
 }
 
@@ -1155,6 +1162,35 @@ function renderPrompts() {
   updateEntryChromeForChatMode();
 }
 
+function assistantFeedbackRowHtml() {
+  const s = LUC.stroke;
+  const up = `<path d="M7 10v12" ${s}/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" ${s}/>`;
+  const down = `<path d="M17 14V2" ${s}/><path d="M9 18.12 10 14H5.83a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z" ${s}/>`;
+  return `<div class="assistant-feedback" role="group" aria-label="Rate this response">
+    <button type="button" class="assistant-feedback__btn" data-feedback="up" aria-label="Good response" aria-pressed="false">${LUC.svg(18, up)}</button>
+    <button type="button" class="assistant-feedback__btn" data-feedback="down" aria-label="Bad response" aria-pressed="false">${LUC.svg(18, down)}</button>
+  </div>`;
+}
+
+/** @param {HTMLElement} msgRoot */
+function wireAssistantFeedback(msgRoot) {
+  const row = msgRoot.querySelector(".assistant-feedback");
+  if (!row) return;
+  row.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-feedback]");
+    if (!(btn instanceof HTMLButtonElement) || !row.contains(btn)) return;
+    const key = btn.getAttribute("data-feedback");
+    const turningOff = btn.getAttribute("aria-pressed") === "true";
+    const next = turningOff ? null : key === "up" || key === "down" ? key : null;
+    for (const b of row.querySelectorAll("[data-feedback]")) {
+      if (!(b instanceof HTMLButtonElement)) continue;
+      const on = next !== null && b.getAttribute("data-feedback") === next;
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+      b.classList.toggle("is-selected", on);
+    }
+  });
+}
+
 function appendUserBubble(text) {
   const wrap = document.createElement("div");
   wrap.className = "msg msg--user msg-anim";
@@ -1222,6 +1258,7 @@ function streamAssistantText(root) {
         window.setTimeout(tick, tickMs);
       } else {
         block.classList.remove("assistant-text--streaming");
+        scrollMainToBottom();
       }
     };
     window.setTimeout(tick, tickMs);
@@ -1232,10 +1269,11 @@ function appendAssistantBlock(html, withAnim = true) {
   removeTyping();
   const wrap = document.createElement("div");
   wrap.className = `msg msg--assistant${withAnim ? " msg-anim" : ""}`;
-  wrap.innerHTML = `<div class="assistant-surface">${html}</div>`;
+  wrap.innerHTML = `<div class="assistant-msg"><div class="assistant-surface">${html}</div>${assistantFeedbackRowHtml()}</div>`;
   el.chatView.appendChild(wrap);
   wrap.querySelectorAll("[data-product-carousel]").forEach((host) => wireProductCarousel(/** @type {HTMLElement} */ (host)));
   wrap.querySelectorAll("[data-skin-routine-widget]").forEach((widget) => wireSkinRoutineWidget(/** @type {HTMLElement} */ (widget)));
+  wireAssistantFeedback(wrap);
   if (withAnim) streamAssistantText(wrap);
   scrollMainToBottom();
 }

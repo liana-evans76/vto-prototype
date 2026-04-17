@@ -49,15 +49,19 @@
 
 html {
   height: 100%;
-  min-height: 100%;
+  height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
   background: var(--surface);
 }
 
 body {
   margin: 0;
-  min-height: 100%;
-  min-height: 100dvh;
-  min-height: 100svh;
+  height: 100%;
+  height: 100svh;
+  max-height: 100svh;
+  min-height: -webkit-fill-available;
+  overflow: hidden;
   background: var(--surface);
   font-family: var(--font-stack);
   color: var(--text-primary);
@@ -78,22 +82,25 @@ body {
 }
 
 .device {
-  min-height: 100dvh;
-  min-height: 100svh;
+  box-sizing: border-box;
   width: 100%;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
   display: flex;
   justify-content: stretch;
   align-items: stretch;
   padding: 0;
   background: var(--surface);
+  overflow: hidden;
 }
 
 .shell {
+  box-sizing: border-box;
   width: 100%;
-  min-height: 100dvh;
-  min-height: 100svh;
-  min-height: -webkit-fill-available;
-  max-height: none;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
   background: var(--surface);
   display: flex;
   flex-direction: column;
@@ -131,6 +138,9 @@ body {
 }
 
 .nav {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 30;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -214,10 +224,12 @@ body {
 .main {
   flex: 1;
   width: 100%;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   background: var(--surface);
   -webkit-overflow-scrolling: touch;
+  scroll-padding-bottom: calc(116px + env(safe-area-inset-bottom, 0px));
 }
 
 .entry {
@@ -559,7 +571,7 @@ body {
 }
 
 .chat {
-  padding: 8px 0 24px;
+  padding: 8px 0 calc(124px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -578,6 +590,15 @@ body {
 .msg--assistant {
   display: flex;
   justify-content: flex-start;
+}
+
+.assistant-msg {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  max-width: 393px;
 }
 
 .user-thread {
@@ -642,6 +663,42 @@ body {
 .assistant-surface {
   width: 100%;
   max-width: 393px;
+}
+
+.assistant-feedback {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0 0 2px;
+  padding: 0 2px;
+}
+
+.assistant-feedback__btn {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+.assistant-feedback__btn:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.assistant-feedback__btn:active {
+  background: rgba(0, 0, 0, 0.07);
+}
+
+.assistant-feedback__btn.is-selected {
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.06);
 }
 
 .assistant-text {
@@ -1269,12 +1326,26 @@ body {
 }
 
 .composer {
-  position: sticky;
-  bottom: 0;
-  z-index: 15;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 20;
   background: var(--surface);
-  padding: 8px max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left));
-  padding-bottom: max(8px, env(safe-area-inset-bottom));
+  padding: 8px max(12px, env(safe-area-inset-right)) 8px max(12px, env(safe-area-inset-left));
+}
+
+.composer-footnote {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 19;
+  margin: 0;
+  padding: 6px max(16px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--text-muted);
+  background: var(--surface);
+  border-top: 0.5px solid rgba(0, 0, 0, 0.06);
 }
 
 .composer__row {
