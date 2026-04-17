@@ -31,17 +31,17 @@ const SKIN_DIAG_PROMPTS = [
   { id: "analyze-skin", text: "Analyze my skin", skinAnalyzeIntent: true },
   {
     id: "routine-sensitive",
-    text: "Build a gentle routine for sensitive, redness-prone skin.",
+    text: "Gentle routine for sensitive, redness-prone skin.",
     skincareIntent: true,
   },
   {
     id: "hydration",
-    text: "Best ingredients for dehydrated, breakout-prone skin.",
+    text: "Ingredients for dehydrated, breakout-prone skin.",
     skincareIntent: true,
   },
   {
     id: "spf-daily",
-    text: "Daily sunscreen that won’t sting around my eyes.",
+    text: "Daily SPF that won't sting near my eyes.",
     skincareIntent: true,
   },
 ];
@@ -56,6 +56,7 @@ const VTO_MIRROR_SRC = "assets/vto-mirror.png";
 
 /** Icon in the “Makeup Try-On” chat header row (purple mirror treatment). */
 const VTO_TRYON_HEADER_ICON_SRC = "assets/makeup-tryon-header-icon.png";
+const SKIN_DIAG_HEADER_ICON_SRC = "assets/skin-diag-icon.png";
 
 /**
  * Product rows: `cardImage` points to local assets (placeholder photography for the prototype).
@@ -71,7 +72,7 @@ const PRODUCTS = {
       swatchBg: "linear-gradient(135deg, #efd8df, #7d5563)",
       cardImage: "assets/ysl-packshot-loveshine-lip-oil.png",
       badgePrimary: "Lip oil",
-      badgeSecondary: "Editor's pick",
+      badgeSecondary: "",
       tags: [
         { dot: "#9f6778", label: "Cool rose" },
         { dot: "#e96ce8", label: "Sheer" },
@@ -160,10 +161,10 @@ const PRODUCTS = {
     {
       brand: "Maybelline",
       title: "Super Stay Vinyl Ink",
-      shadeLabel: "35 — Cheeky",
-      swatch: "#c45a6e",
-      swatchBg: "linear-gradient(135deg, #f8c9d4, #c45a6e)",
-      cardImage: "assets/mny-1.jpg",
+      shadeLabel: "40 — Witty",
+      swatch: "#b66c78",
+      swatchBg: "linear-gradient(135deg, #f4ccd4, #b66c78)",
+      cardImage: "assets/mny-vinyl-ink-40-witty.png",
       badgePrimary: "Longwear",
       badgeSecondary: "Vinyl shine",
       tags: [
@@ -182,17 +183,17 @@ const PRODUCTS = {
     },
     {
       brand: "Maybelline",
-      title: "Color Sensational Made For All",
-      shadeLabel: "382 — Red For Me",
-      swatch: "#b3394b",
-      swatchBg: "linear-gradient(135deg, #f5b8c0, #b3394b)",
-      cardImage: "assets/mny-2.jpg",
-      badgePrimary: "Universal red",
-      badgeSecondary: "Satin",
+      title: "Super Stay Matte Ink",
+      shadeLabel: "Mover",
+      swatch: "#b65366",
+      swatchBg: "linear-gradient(135deg, #f3bcc6, #b65366)",
+      cardImage: "assets/mny-matte-ink-mover.png",
+      badgePrimary: "Longwear matte",
+      badgeSecondary: "High impact",
       tags: [
-        { dot: "#b3394b", label: "True red" },
-        { dot: "#e96ce8", label: "Satin" },
-        { dot: "#e96ce8", label: "Pigmented" },
+        { dot: "#b65366", label: "Rosy berry" },
+        { dot: "#e96ce8", label: "16HR" },
+        { dot: "#e96ce8", label: "Transfer-resistant" },
       ],
       priceWas: "$11",
       priceNow: "$9",
@@ -206,10 +207,10 @@ const PRODUCTS = {
     {
       brand: "Maybelline",
       title: "Lifter Gloss",
-      shadeLabel: "008 — Stone",
-      swatch: "#c99592",
-      swatchBg: "linear-gradient(135deg, #f1d5d2, #c99592)",
-      cardImage: "assets/mny-3.jpg",
+      shadeLabel: "Reef",
+      swatch: "#d79ca9",
+      swatchBg: "linear-gradient(135deg, #f8d9df, #d79ca9)",
+      cardImage: "assets/mny-lifter-gloss-reef.png",
       badgePrimary: "Hyaluronic",
       badgeSecondary: "Top rated",
       tags: [
@@ -228,17 +229,17 @@ const PRODUCTS = {
     },
     {
       brand: "Maybelline",
-      title: "Super Stay Matte Ink",
-      shadeLabel: "65 — Seductress",
-      swatch: "#b5656d",
-      swatchBg: "linear-gradient(135deg, #f0c4c8, #b5656d)",
-      cardImage: "assets/mny-4.jpg",
-      badgePrimary: "Matte",
-      badgeSecondary: "Cult favorite",
+      title: "Slip-On Serum Lipstick",
+      shadeLabel: "04 — Til 4",
+      swatch: "#a65958",
+      swatchBg: "linear-gradient(135deg, #f4cfcf, #a65958)",
+      cardImage: "assets/mny-slip-on-serum-til-4.png",
+      badgePrimary: "Serum lipstick",
+      badgeSecondary: "Comfort wear",
       tags: [
-        { dot: "#b5656d", label: "Mauve nude" },
-        { dot: "#e96ce8", label: "Transfer-resistant" },
-        { dot: "#e96ce8", label: "Comfort matte" },
+        { dot: "#a65958", label: "Warm terracotta" },
+        { dot: "#e96ce8", label: "Soft matte" },
+        { dot: "#e96ce8", label: "Hydrating feel" },
       ],
       priceWas: "$12",
       priceNow: "$10",
@@ -469,7 +470,6 @@ const el = {
   productDetailDots: /** @type {HTMLElement} */ (document.getElementById("productDetailDots")),
   productDetailBrand: /** @type {HTMLElement} */ (document.getElementById("productDetailBrand")),
   productDetailTitle: /** @type {HTMLElement} */ (document.getElementById("productDetailTitle")),
-  productDetailBadges: /** @type {HTMLElement} */ (document.getElementById("productDetailBadges")),
   productDetailTags: /** @type {HTMLElement} */ (document.getElementById("productDetailTags")),
   productDetailShadeDot: /** @type {HTMLElement} */ (document.getElementById("productDetailShadeDot")),
   productDetailShadeLabel: /** @type {HTMLElement} */ (document.getElementById("productDetailShadeLabel")),
@@ -477,9 +477,16 @@ const el = {
   productDetailDescription: /** @type {HTMLElement} */ (document.getElementById("productDetailDescription")),
   productDetailIngredientsBody: /** @type {HTMLElement} */ (document.getElementById("productDetailIngredientsBody")),
   productDetailBuy: /** @type {HTMLButtonElement} */ (document.getElementById("productDetailBuy")),
+  productDetailUnpack: /** @type {HTMLElement} */ (document.getElementById("productDetailUnpack")),
+  productDetailUnpackLede: /** @type {HTMLElement} */ (document.getElementById("productDetailUnpackLede")),
+  productDetailUnpackList: /** @type {HTMLElement} */ (document.getElementById("productDetailUnpackList")),
+  productDetailAlternates: /** @type {HTMLElement} */ (document.getElementById("productDetailAlternates")),
+  productDetailAlternatesStrip: /** @type {HTMLElement} */ (document.getElementById("productDetailAlternatesStrip")),
+  productDetailAlternatesSub: /** @type {HTMLElement} */ (document.getElementById("productDetailAlternatesSub")),
+  productDetailShadeRow: /** @type {HTMLElement} */ (document.getElementById("productDetailShadeRow")),
+  productDetailVto: /** @type {HTMLButtonElement} */ (document.getElementById("productDetailVto")),
   vtoFlow: /** @type {HTMLElement} */ (document.getElementById("vtoFlow")),
   vtoTermsPanel: /** @type {HTMLElement} */ (document.getElementById("vtoTermsPanel")),
-  vtoModePanel: /** @type {HTMLElement} */ (document.getElementById("vtoModePanel")),
   vtoLiveStubPanel: /** @type {HTMLElement} */ (document.getElementById("vtoLiveStubPanel")),
   vtoSelfieStubPanel: /** @type {HTMLElement} */ (document.getElementById("vtoSelfieStubPanel")),
   vtoSelfieConfirmPanel: /** @type {HTMLElement} */ (document.getElementById("vtoSelfieConfirmPanel")),
@@ -533,6 +540,8 @@ const el = {
   vtoSelfieVideo: /** @type {HTMLVideoElement} */ (document.getElementById("vtoSelfieVideo")),
   vtoSelfieGuidePill: /** @type {HTMLElement} */ (document.getElementById("vtoSelfieGuidePill")),
   vtoSelfieGuidePath: /** @type {SVGPathElement | null} */ (document.getElementById("vtoSelfieGuidePath")),
+  vtoSelfieGuidePathLeft: /** @type {SVGPathElement | null} */ (document.getElementById("vtoSelfieGuidePathLeft")),
+  vtoSelfieGuidePathRight: /** @type {SVGPathElement | null} */ (document.getElementById("vtoSelfieGuidePathRight")),
   vtoSelfieCameraClose: /** @type {HTMLButtonElement} */ (document.getElementById("vtoSelfieCameraClose")),
   vtoSelfieCameraInfo: /** @type {HTMLButtonElement} */ (document.getElementById("vtoSelfieCameraInfo")),
   vtoSelfieCaptureComplete: /** @type {HTMLElement} */ (document.getElementById("vtoSelfieCaptureComplete")),
@@ -543,20 +552,17 @@ const el = {
   vtoTermsCheckbox: /** @type {HTMLInputElement} */ (document.getElementById("vtoTermsCheckbox")),
   vtoConsentBtn: /** @type {HTMLButtonElement} */ (document.getElementById("vtoConsentBtn")),
   vtoTermsClose: /** @type {HTMLButtonElement} */ (document.getElementById("vtoTermsClose")),
-  vtoModeClose: /** @type {HTMLButtonElement} */ (document.getElementById("vtoModeClose")),
-  vtoModeLive: /** @type {HTMLButtonElement} */ (document.getElementById("vtoModeLive")),
-  vtoModeSelfie: /** @type {HTMLButtonElement} */ (document.getElementById("vtoModeSelfie")),
-  vtoModePrivacyLearn: /** @type {HTMLButtonElement} */ (document.getElementById("vtoModePrivacyLearn")),
   vtoLiveStubBack: /** @type {HTMLButtonElement} */ (document.getElementById("vtoLiveStubBack")),
   vtoLiveStubDone: /** @type {HTMLButtonElement} */ (document.getElementById("vtoLiveStubDone")),
-  vtoSelfieStubDone: /** @type {HTMLButtonElement} */ (document.getElementById("vtoSelfieStubDone")),
+  vtoStubLiveMode: /** @type {HTMLButtonElement} */ (document.getElementById("vtoStubLiveMode")),
   vtoSelfieTake: /** @type {HTMLButtonElement} */ (document.getElementById("vtoSelfieTake")),
-  vtoSelfieUpload: /** @type {HTMLButtonElement} */ (document.getElementById("vtoSelfieUpload")),
+  vtoSelfieUploadPhoto: /** @type {HTMLButtonElement | null} */ (document.getElementById("vtoSelfieUploadPhoto")),
   composerRoot: /** @type {HTMLElement | null} */ (document.getElementById("composerRoot")),
   composerPlus: /** @type {HTMLButtonElement | null} */ (document.getElementById("composerPlus")),
   composerAppMenu: /** @type {HTMLElement | null} */ (document.getElementById("composerAppMenu")),
   composerAppMenuBackdrop: /** @type {HTMLButtonElement | null} */ (document.getElementById("composerAppMenuBackdrop")),
   composerAppMenuVto: /** @type {HTMLButtonElement | null} */ (document.getElementById("composerAppMenuVto")),
+  composerAppMenuSkinDiag: /** @type {HTMLButtonElement | null} */ (document.getElementById("composerAppMenuSkinDiag")),
   composerAppPill: /** @type {HTMLElement | null} */ (document.getElementById("composerAppPill")),
   composerAppPillClear: /** @type {HTMLButtonElement | null} */ (document.getElementById("composerAppPillClear")),
   navNewChatBtn: /** @type {HTMLButtonElement | null} */ (document.getElementById("navNewChatBtn")),
@@ -577,6 +583,35 @@ let chatMode = "makeup";
 /** When true, post–terms navigation should go to Skin Diagnosis instead of try-on mode. */
 let skinDiagFlowActive = false;
 
+/** When true, VTO shell chrome (brand, camera permission copy) uses skincare.com. Independent of {@link skinDiagFlowActive} so chat-side effects cannot flip branding mid-capture. */
+let vtoSkinBrandExperienceActive = false;
+
+const VTO_EXPERIENCE_BRAND_MAKEUP = "makeup.com";
+const VTO_EXPERIENCE_BRAND_SKIN = "skincare.com";
+const VTO_EXPERIENCE_ARIA_MAKEUP = "makeup.com by L'Oréal";
+const VTO_EXPERIENCE_ARIA_SKIN = "skincare.com by L'Oréal";
+
+/** Active skin diagnosis capture / questionnaire / results shell uses “skincare.com”. */
+function useSkinExperienceBranding() {
+  return vtoSkinBrandExperienceActive;
+}
+
+function syncVtoExperienceBrandUi() {
+  const skin = useSkinExperienceBranding();
+  const name = skin ? VTO_EXPERIENCE_BRAND_SKIN : VTO_EXPERIENCE_BRAND_MAKEUP;
+  const aria = skin ? VTO_EXPERIENCE_ARIA_SKIN : VTO_EXPERIENCE_ARIA_MAKEUP;
+  document.querySelectorAll(".vto-mode__brand-name, .vto-terms__brand-name").forEach((node) => {
+    node.textContent = name;
+  });
+  document.querySelectorAll('.vto-mode__brand[role="img"]').forEach((node) => {
+    node.setAttribute("aria-label", aria);
+  });
+  const permTitle = document.getElementById("vtoSelfiePermTitle");
+  if (permTitle) {
+    permTitle.textContent = `“${name}” would like to access your camera`;
+  }
+}
+
 /** Step index within {@link SKIN_DIAG_QUIZ_STEPS} after selfie confirm (skin flow only). */
 let skinDiagQuizStep = 0;
 
@@ -596,7 +631,7 @@ let skinDiagQuizAnswers = {
 const SKIN_DIAG_QUIZ_STEPS = [
   {
     key: "ageBand",
-    title: "What is your age band?",
+    title: "How old are you?",
     subtitle: "Providing us with your age helps our analysis correctly identify your skin health.",
     helpLabel: "Why do we ask this?",
     layout: "grid",
@@ -643,60 +678,216 @@ const SKIN_DIAG_QUIZ_STEPS = [
 ];
 
 /**
- * Fake skin-concern hotspots (normalized 0–1 on the portrait). Used for results UI only.
- * Card thumbnails use `marker` as the focal point and `zoom.scale` to derive crop zoom.
+ * Fake skin-concern hotspots (normalized 0–1 on the portrait; x=left…right, y=top…bottom).
+ * Assumes a centered frontal face like the selfie oval. Card thumbnails use `marker` + `zoom`.
  * @type {readonly { id: string, title: string, severity: string, score: number, scoreMax: number, blurb: string, marker: { x: number, y: number }, zoom: { x: number, y: number, scale: number } }[]}
  */
 const SKIN_DIAG_FAKE_CONCERNS = [
   {
-    id: "forehead",
-    title: "Forehead texture",
+    id: "large-pores",
+    title: "Large Pores",
     severity: "Mild",
     score: 14,
     scoreMax: 40,
-    blurb: "Sun exposure and repeated expressions can deepen lines over time. Daily SPF helps protect this high-exposure zone.",
-    marker: { x: 0.5, y: 0.26 },
-    zoom: { x: 0.5, y: 0.28, scale: 2.08 },
+    blurb: "Often most visible on oil-prone areas of the cheeks. Gentle exfoliation and daily SPF can help pores look smoother over time.",
+    marker: { x: 0.34, y: 0.49 },
+    zoom: { x: 0.34, y: 0.48, scale: 2.12 },
   },
   {
-    id: "undereye",
-    title: "Undereye area",
-    severity: "Moderate",
-    score: 22,
-    scoreMax: 40,
-    blurb: "Sleep and hydration play a big role here. Cool compresses and a steady sleep schedule can soften the look of shadows.",
-    marker: { x: 0.38, y: 0.44 },
-    zoom: { x: 0.38, y: 0.44, scale: 2.22 },
-  },
-  {
-    id: "cheek",
-    title: "Cheek redness",
+    id: "radiance",
+    title: "Lack of Radiance",
     severity: "Mild",
-    score: 11,
+    score: 16,
     scoreMax: 40,
-    blurb: "Weather and stress can trigger flushing on the cheeks. Fragrance-free routines often feel more comfortable.",
-    marker: { x: 0.72, y: 0.48 },
-    zoom: { x: 0.72, y: 0.48, scale: 2.12 },
+    blurb: "The center forehead catches light first—dullness here is usually UV, dehydration, or buildup. Antioxidants and consistent SPF help.",
+    marker: { x: 0.5, y: 0.24 },
+    zoom: { x: 0.5, y: 0.24, scale: 2.05 },
   },
   {
-    id: "pores",
-    title: "Large pores",
+    id: "blotchiness",
+    title: "Blotchiness",
+    severity: "Moderate",
+    score: 20,
+    scoreMax: 40,
+    blurb: "Cheek tone can look uneven from heat, irritation, or past sun. Calming, fragrance-free care supports a more even look gradually.",
+    marker: { x: 0.66, y: 0.49 },
+    zoom: { x: 0.66, y: 0.49, scale: 2.12 },
+  },
+  {
+    id: "fine-lines",
+    title: "Fine Lines",
     severity: "Mild",
     score: 12,
     scoreMax: 40,
-    blurb: "Oil flow and genetics influence pore visibility. Clay masks a few times per week can help keep pores clear.",
-    marker: { x: 0.55, y: 0.52 },
-    zoom: { x: 0.56, y: 0.54, scale: 2.18 },
+    blurb: "Between the brows is a classic expression zone. Hydration and retinoid-style actives (when your skin tolerates them) are common supports.",
+    marker: { x: 0.5, y: 0.36 },
+    zoom: { x: 0.5, y: 0.36, scale: 2.18 },
+  },
+];
+
+/**
+ * Maps normalized marker/zoom Y (0 top → 1 bottom) to the visible face frame.
+ * The results photo uses `object-position: center top`, so stored Y values read slightly high; shift down together.
+ * @param {number} y
+ */
+function skinDiagFaceMapY(y) {
+  return Math.min(0.97, Math.max(0.02, y + 0.102));
+}
+
+/**
+ * Prototype skincare routine dataset for Skin Diag follow-up.
+ * Day/night: shared CeraVe cleanser; Lancôme Génifique (AM) vs CeraVe retinol (PM); Biotherm moisturizer both;
+ * La Roche-Posay Anthelios SPF last in AM (night panel mirrors packshot for toggle parity).
+ * Each pick includes copy for the shared product detail sheet + “Unpack my match” bullets.
+ */
+const SKIN_ROUTINE_STEPS = [
+  {
+    step: "Cleanse",
+    day: {
+      brand: "CeraVe",
+      title: "Hydrating Cream-to-Foam Cleanser",
+      match: 88,
+      tags: ["Hydrating", "Barrier support"],
+      price: "~$18",
+      image: "assets/skin-routine-cerave-cleanser.png",
+      description:
+        "A cream-to-foam cleanser that melts away sunscreen and daily buildup without leaving skin feeling tight. Three essential ceramides plus hyaluronic acid support a comfortable, barrier-respecting cleanse.",
+      ingredients:
+        "Aqua, Glycerin, Sodium Methyl Cocoyl Taurate, Coco-Betaine, Sodium Cocoyl Isethionate, Sodium Chloride, PCA, PEG-150 Pentaerythrityl Tetrastearate, Sodium Hyaluronate, Ceramide NP, Ceramide AP, Ceramide EOP, Cholesterol, Phenoxyethanol, Citric Acid.",
+      unpackBullets: [
+        "Low-irritancy surfactants line up with your sensitivity signals.",
+        "Barrier-focused ingredients pair with uneven tone and visible-pore goals.",
+        "Leaves a flexible canvas for treatment steps—no heavy residue.",
+      ],
+    },
+    night: {
+      brand: "CeraVe",
+      title: "Hydrating Cream-to-Foam Cleanser",
+      match: 88,
+      tags: ["Gentle", "Removes makeup"],
+      price: "~$18",
+      image: "assets/skin-routine-cerave-cleanser.png",
+      description:
+        "A cream-to-foam cleanser that melts away sunscreen and daily buildup without leaving skin feeling tight. Three essential ceramides plus hyaluronic acid support a comfortable, barrier-respecting cleanse.",
+      ingredients:
+        "Aqua, Glycerin, Sodium Methyl Cocoyl Taurate, Coco-Betaine, Sodium Cocoyl Isethionate, Sodium Chloride, PCA, PEG-150 Pentaerythrityl Tetrastearate, Sodium Hyaluronate, Ceramide NP, Ceramide AP, Ceramide EOP, Cholesterol, Phenoxyethanol, Citric Acid.",
+      unpackBullets: [
+        "Same gentle base for AM/PM so actives are not fighting different cleansers.",
+        "Removes SPF and light makeup before retinol without over-stripping.",
+        "Ceramide support helps offset dryness from PM treatment steps.",
+      ],
+    },
   },
   {
-    id: "blemishes",
-    title: "Blemishes",
-    severity: "Moderate",
-    score: 24,
-    scoreMax: 40,
-    blurb: "Hormones and humidity can invite breakouts around the chin. Avoid over-stripping the skin while treating spots.",
-    marker: { x: 0.5, y: 0.71 },
-    zoom: { x: 0.5, y: 0.68, scale: 2.15 },
+    step: "Treat",
+    day: {
+      brand: "Lancôme",
+      title: "Génifique Ultimate",
+      match: 91,
+      tags: ["Serum", "AM-friendly"],
+      price: "~$135",
+      image: "assets/skin-routine-lancome-genifique.png",
+      description:
+        "A fast-absorbing serum designed to support radiance and a smoother-looking complexion. Lightweight enough for morning under moisturizer and SPF.",
+      ingredients:
+        "Aqua, Bifida Ferment Lysate, Glycerin, Dimethicone, Hydroxyethylcellulose, Sodium Hyaluronate, Adenosine, Tocopherol, Ascorbyl Glucoside, Phenoxyethanol, Parfum (Fragrance).",
+      unpackBullets: [
+        "Targets dullness and uneven tone—two of your higher-weighted concerns.",
+        "AM-safe profile avoids stacking strong acids before sunscreen.",
+        "Hydration-forward base plays well with gel moisturizer in the next step.",
+      ],
+    },
+    night: {
+      brand: "CeraVe",
+      title: "Resurfacing Retinol Serum",
+      match: 87,
+      tags: ["PM retinol", "Ceramides"],
+      price: "~$22",
+      image: "assets/skin-routine-cerave-retinol.png",
+      description:
+        "A retinol serum with ceramides and licorice root extract to support skin while refining texture over time. Intended for evening use after cleansing.",
+      ingredients:
+        "Aqua, Glycerin, Caprylic/Capric Triglyceride, Niacinamide, Retinol, Ceramide NP, Ceramide AP, Ceramide EOP, Dipotassium Glycyrrhizate, Sodium Hyaluronate, Dimethicone, Phenoxyethanol.",
+      unpackBullets: [
+        "PM placement keeps retinol away from daytime SPF and sweat friction.",
+        "Ceramide buffer fits a profile that still needs barrier reassurance.",
+        "Texture support complements fine-line and radiance goals without AM conflict.",
+      ],
+    },
+  },
+  {
+    step: "Moisturize",
+    day: {
+      brand: "Biotherm",
+      title: "Aquasource Hyalu Plump Gel",
+      match: 85,
+      tags: ["Plumping", "Gel texture"],
+      price: "~$52",
+      image: "assets/skin-routine-biotherm-aquasource.png",
+      description:
+        "A cooling gel-cream moisturizer with hyaluronic acid for a plumped, fresh feel. Layers cleanly under sunscreen without pilling.",
+      ingredients:
+        "Aqua, Glycerin, Dimethicone, Sodium Hyaluronate, Mannose, Panthenol, Ammonium Polyacryloyldimethyl Taurate, Phenoxyethanol, Parfum (Fragrance).",
+      unpackBullets: [
+        "Gel texture reads lighter on oil-prone zones where pores look more noticeable.",
+        "Hyaluronic acid supports hydration after exfoliating or retinol nights.",
+        "Finishes with a skin-like sheen that pairs with fluid SPF.",
+      ],
+    },
+    night: {
+      brand: "Biotherm",
+      title: "Aquasource Hyalu Plump Gel",
+      match: 85,
+      tags: ["Hydration", "Comfort"],
+      price: "~$52",
+      image: "assets/skin-routine-biotherm-aquasource.png",
+      description:
+        "A cooling gel-cream moisturizer with hyaluronic acid for a plumped, fresh feel. Layers cleanly under sunscreen without pilling.",
+      ingredients:
+        "Aqua, Glycerin, Dimethicone, Sodium Hyaluronate, Mannose, Panthenol, Ammonium Polyacryloyldimethyl Taurate, Phenoxyethanol, Parfum (Fragrance).",
+      unpackBullets: [
+        "Locks in water after retinol without a heavy occlusive feel.",
+        "Comfort-first finish supports redness-prone or sensitized days.",
+        "Consistent moisturizer choice keeps barrier signals steady across the week.",
+      ],
+    },
+  },
+  {
+    step: "SPF",
+    day: {
+      brand: "La Roche-Posay",
+      title: "Anthelios Ultra Fluid SPF 50+",
+      match: 90,
+      tags: ["UVA/UVB", "Invisible finish"],
+      price: "~$38",
+      image: "assets/skin-routine-lrp-anthelios.png",
+      description:
+        "A high-protection fluid sunscreen with a lightweight, fast-drying finish. Designed for daily face wear under makeup or on bare skin.",
+      ingredients:
+        "Aqua, Alcohol Denat., Diisopropyl Sebacate, Silica, Ethylhexyl Salicylate, Bis-Ethylhexyloxyphenol Methoxyphenyl Triazine, Ethylhexyl Triazone, Tocopherol, Phenoxyethanol.",
+      unpackBullets: [
+        "Strong UV coverage supports blotchiness and tone-evenness goals long term.",
+        "Fluid texture reduces skip days—especially important when pores read more with oil.",
+        "Finishing step seals in treatment without adding chalky cast.",
+      ],
+    },
+    night: {
+      brand: "La Roche-Posay",
+      title: "Anthelios Ultra Fluid SPF 50+",
+      match: 90,
+      tags: ["UVA/UVB", "Face"],
+      price: "~$38",
+      image: "assets/skin-routine-lrp-anthelios.png",
+      description:
+        "A high-protection fluid sunscreen with a lightweight, fast-drying finish. Designed for daily face wear under makeup or on bare skin.",
+      ingredients:
+        "Aqua, Alcohol Denat., Diisopropyl Sebacate, Silica, Ethylhexyl Salicylate, Bis-Ethylhexyloxyphenol Methoxyphenyl Triazine, Ethylhexyl Triazone, Tocopherol, Phenoxyethanol.",
+      unpackBullets: [
+        "Shown here for parity with the day carousel; your PM routine can skip SPF after cleansing.",
+        "Same photostable filters if you want a single SPF SKU on your shelf.",
+        "If you prefer a night-only card, swap this slot mentally for recovery balm.",
+      ],
+    },
   },
 ];
 
@@ -708,6 +899,7 @@ let skinDiagResultsSelectedId = null;
 
 /** Bumped to cancel in-flight assistant “generation” (typing + follow-up). */
 let chatGenerationEpoch = 0;
+let skinRoutineFallbackImageUrl = /** @type {string | null} */ (null);
 
 function bumpChatGeneration() {
   chatGenerationEpoch += 1;
@@ -716,6 +908,8 @@ function bumpChatGeneration() {
   chatAwaitingBudgetTierReply = false;
   chatAwaitingTryOnConfirm = false;
   chatAwaitingSkinDiagConfirm = false;
+  chatAwaitingSkinRoutineChoice = false;
+  chatSkinRoutineConcernId = null;
   refreshComposerActionState();
 }
 
@@ -732,7 +926,8 @@ let vtoUserAcceptedTerms = false;
 let tryOnFromChatSingleProduct = false;
 
 /** Selected composer app from plus menu (null means none). */
-let composerSelectedApp = /** @type {null|'vto'} */ (null);
+let composerSelectedApp = /** @type {null|'vto'|'skin_diag'} */ (null);
+let composerAppMenuCloseTimer = /** @type {number | null} */ (null);
 
 /** @type {MediaStream | null} */
 let vtoCameraStream = null;
@@ -792,8 +987,7 @@ function isSkinAnalyzeIntent(text, promptMeta) {
 function skinDiagInviteAssistantHtml() {
   return `<div class="assistant-text">
     <p style="margin:0 0 12px">I can help with a guided <strong>Skin Diagnosis</strong>—think of it as a structured snapshot of what you are seeing in your skin, with clear next steps (always informational, not a substitute for an in-person dermatologist visit).</p>
-    <p style="margin:0 0 12px">Next, we will use the same full-screen consent flow as our makeup try-on partner experience, so you know exactly how your image may be used.</p>
-    <p style="margin:0">When you are ready for me to open that screen, reply in plain language—<strong>“yes,” “sure,” “go ahead,” “continue,”</strong> or <strong>“I am ready”</strong> all work. If you want to stay in chat for now, say something like <strong>“not now”</strong> or <strong>“later.”</strong></p>
+    <p style="margin:0">If that sounds good, reply with <strong>yes</strong>, <strong>sure</strong>, <strong>go ahead</strong>, <strong>continue</strong>, or <strong>I am ready</strong> and I will launch the capture flow. Want to stay in chat for now? Say <strong>not now</strong> or <strong>later.</strong></p>
   </div>`;
 }
 
@@ -807,7 +1001,7 @@ function updateEntryChromeForChatMode() {
   const h = el.entryHeadline;
   if (!h) return;
   if (chatMode === "skin_diag") {
-    h.textContent = "How can I help with your skin today?";
+    h.textContent = "What does your skin need today?";
     el.entryView?.setAttribute("aria-label", "Skin diagnosis suggested prompts");
     return;
   }
@@ -836,12 +1030,43 @@ function applySelfieStubSkinDiagUi(isSkinDiagFlow) {
   panel.classList.toggle("vto-flow__panel--skin-diag-flow", isSkinDiagFlow);
   const title = el.vtoSelfieStubTitle;
   if (title) title.textContent = isSkinDiagFlow ? "Skin diagnosis photo" : "Try-on selfie";
+  if (el.vtoStubLiveMode) {
+    el.vtoStubLiveMode.hidden = isSkinDiagFlow;
+    el.vtoStubLiveMode.classList.toggle("vto-mode__btn--primary", !isSkinDiagFlow);
+    el.vtoStubLiveMode.classList.remove("vto-mode__btn--secondary");
+  }
+  if (el.vtoSelfieTake) {
+    el.vtoSelfieTake.classList.toggle("vto-mode__btn--primary", isSkinDiagFlow);
+    el.vtoSelfieTake.classList.toggle("vto-mode__btn--secondary", !isSkinDiagFlow);
+  }
+  if (el.vtoSelfieUploadPhoto) {
+    el.vtoSelfieUploadPhoto.hidden = !isSkinDiagFlow;
+    el.vtoSelfieUploadPhoto.classList.remove("vto-mode__btn--primary");
+    if (isSkinDiagFlow) el.vtoSelfieUploadPhoto.classList.add("vto-mode__btn--secondary");
+    else el.vtoSelfieUploadPhoto.classList.remove("vto-mode__btn--secondary");
+  }
+}
+
+function focusSelfieStubPrimaryAction() {
+  const panel = el.vtoSelfieStubPanel;
+  requestAnimationFrame(() => {
+    if (!panel || panel.hidden) return;
+    if (panel.classList.contains("vto-flow__panel--skin-diag-flow")) {
+      el.vtoSelfieTake?.focus();
+      return;
+    }
+    if (el.vtoStubLiveMode && !el.vtoStubLiveMode.hidden) {
+      el.vtoStubLiveMode.focus();
+      return;
+    }
+    el.vtoSelfieTake?.focus();
+  });
 }
 
 function showSkinDiagSelfieEntry() {
   applySelfieStubSkinDiagUi(true);
   showVtoSelfieStub();
-  requestAnimationFrame(() => el.vtoSelfieTake.focus());
+  focusSelfieStubPrimaryAction();
 }
 
 function resetSkinDiagSessionFlags() {
@@ -850,6 +1075,8 @@ function resetSkinDiagSessionFlags() {
   chatAwaitingBudgetTierReply = false;
   chatAwaitingTryOnConfirm = false;
   chatAwaitingSkinDiagConfirm = false;
+  chatAwaitingSkinRoutineChoice = false;
+  chatSkinRoutineConcernId = null;
 }
 
 function startSkinDiagChat() {
@@ -857,6 +1084,10 @@ function startSkinDiagChat() {
   bumpChatGeneration();
   chatMode = "skin_diag";
   skinDiagFlowActive = false;
+  if (composerSelectedApp === "vto") {
+    composerSelectedApp = null;
+    syncComposerAppPill();
+  }
   el.chatView.innerHTML = "";
   resetSkinDiagSessionFlags();
   view = "entry";
@@ -878,6 +1109,10 @@ function switchToMakeupChat() {
   bumpChatGeneration();
   chatMode = "makeup";
   skinDiagFlowActive = false;
+  if (composerSelectedApp === "skin_diag") {
+    composerSelectedApp = null;
+    syncComposerAppPill();
+  }
   el.chatView.innerHTML = "";
   resetSkinDiagSessionFlags();
   view = "entry";
@@ -896,7 +1131,10 @@ function switchToMakeupChat() {
 
 function launchSkinDiagAfterConfirm() {
   skinDiagFlowActive = true;
+  vtoSkinBrandExperienceActive = true;
+  syncVtoExperienceBrandUi();
   prepareVtoShellVisible();
+  applySelfieStubSkinDiagUi(true);
   if (chatMode === "skin_diag") {
     el.composerRoot?.classList.remove("composer--vto");
     setComposerForChatMode();
@@ -1005,18 +1243,123 @@ function appendAssistantBlock(html, withAnim = true) {
   wrap.innerHTML = `<div class="assistant-surface">${html}</div>`;
   el.chatView.appendChild(wrap);
   wrap.querySelectorAll("[data-product-carousel]").forEach((host) => wireProductCarousel(/** @type {HTMLElement} */ (host)));
+  wrap.querySelectorAll("[data-skin-routine-widget]").forEach((widget) => wireSkinRoutineWidget(/** @type {HTMLElement} */ (widget)));
   if (withAnim) streamAssistantText(wrap);
   scrollMainToBottom();
+}
+
+/** @param {HTMLElement} widget */
+function wireSkinRoutineWidget(widget) {
+  const routinePanel = /** @type {HTMLElement | null} */ (widget.querySelector("[data-routine-routine]"));
+  const chrome = /** @type {HTMLElement | null} */ (widget.querySelector("[data-routine-chrome]"));
+  const buttons = Array.from(widget.querySelectorAll("[data-routine-toggle]"));
+  const stepLabelEl = /** @type {HTMLElement | null} */ (widget.querySelector("[data-routine-step-label]"));
+  const stepIndexEl = /** @type {HTMLElement | null} */ (widget.querySelector("[data-routine-step-index]"));
+  const carousel = widget.querySelector(".skin-routine-carousel");
+  const row = /** @type {HTMLElement | null} */ (carousel?.querySelector(".slide-row"));
+
+  /** @param {'day'|'night'} mode */
+  const setMode = (mode) => {
+    widget.setAttribute("data-mode", mode);
+    for (const btn of buttons) {
+      const on = btn.getAttribute("data-routine-toggle") === mode;
+      btn.classList.toggle("is-active", on);
+      btn.setAttribute("aria-selected", on ? "true" : "false");
+    }
+    for (const panel of widget.querySelectorAll("[data-routine-panel]")) {
+      const panelMode = panel.getAttribute("data-routine-panel");
+      panel.toggleAttribute("hidden", panelMode !== mode);
+    }
+  };
+  for (const btn of buttons) {
+    btn.addEventListener("click", () => {
+      const mode = btn.getAttribute("data-routine-toggle");
+      if (mode === "day" || mode === "night") setMode(mode);
+    });
+  }
+
+  const syncRoutineChrome = () => {
+    if (!chrome || !row || !widget.classList.contains("skin-routine-widget--show-routine")) return;
+    const stepPx = carouselScrollStepPx(row);
+    if (stepPx <= 0) return;
+    const maxIdx = Math.max(0, row.children.length - 1);
+    const idx = Math.min(maxIdx, Math.max(0, Math.round((row.scrollLeft + stepPx * 0.15) / stepPx)));
+    const slide = row.children[idx];
+    if (slide instanceof HTMLElement && slide.dataset.stepLabel) {
+      if (stepLabelEl) stepLabelEl.textContent = slide.dataset.stepLabel;
+      if (stepIndexEl) {
+        const part = slide.dataset.stepPart || "";
+        const tot = slide.dataset.stepTotal || "";
+        stepIndexEl.textContent = part && tot ? `${part}/${tot}` : "";
+      }
+    }
+  };
+
+  const introPanel = /** @type {HTMLElement | null} */ (widget.querySelector("[data-routine-intro]"));
+  const prev = /** @type {HTMLButtonElement | null} */ (carousel?.querySelector(".product-carousel__btn--prev"));
+
+  const seeBtn = widget.querySelector("[data-routine-see]");
+  seeBtn?.addEventListener("click", () => {
+    widget.classList.add("skin-routine-widget--show-routine");
+    if (routinePanel) routinePanel.setAttribute("aria-hidden", "false");
+    if (introPanel) introPanel.setAttribute("aria-hidden", "true");
+    window.setTimeout(() => {
+      row?.dispatchEvent(new Event("scroll"));
+      syncRoutineChrome();
+    }, 420);
+  });
+
+  widget.addEventListener("click", (e) => {
+    const unpack = e.target.closest("[data-routine-unpack]");
+    if (!unpack || !(unpack instanceof HTMLButtonElement)) return;
+    if (!widget.contains(unpack)) return;
+    const step = Number(unpack.getAttribute("data-routine-unpack-step"));
+    const mode = unpack.getAttribute("data-routine-unpack-mode");
+    if (!Number.isFinite(step) || (mode !== "day" && mode !== "night")) return;
+    e.preventDefault();
+    openSkinRoutineProductDetail(step, mode);
+  });
+
+  prev?.addEventListener(
+    "click",
+    (e) => {
+      if (!widget.classList.contains("skin-routine-widget--show-routine") || !row) return;
+      if (row.scrollLeft > 2) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      widget.classList.remove("skin-routine-widget--show-routine");
+      if (routinePanel) routinePanel.setAttribute("aria-hidden", "true");
+      if (introPanel) introPanel.setAttribute("aria-hidden", "false");
+      window.requestAnimationFrame(() => {
+        row.dispatchEvent(new Event("scroll"));
+        syncRoutineChrome();
+      });
+    },
+    true,
+  );
+
+  row?.addEventListener("scroll", syncRoutineChrome, { passive: true });
+  row?.addEventListener("scrollend", syncRoutineChrome);
+
+  setMode("day");
 }
 
 /** Matches product card horizontal stride (276px card + 8px gap in CSS). */
 const PRODUCT_CAROUSEL_FALLBACK_STEP = 284;
 
 function carouselScrollStepPx(row) {
-  const card = row.querySelector(".product-card");
-  if (!card) return PRODUCT_CAROUSEL_FALLBACK_STEP;
   const cs = getComputedStyle(row);
   const gap = parseFloat(cs.columnGap || cs.gap || "8") || 8;
+  const routineSlide = row.querySelector(".skin-routine-slide");
+  if (routineSlide) {
+    return Math.round(routineSlide.getBoundingClientRect().width + gap);
+  }
+  const hero = row.querySelector(".skin-routine-hero-card");
+  if (hero) {
+    return Math.round(hero.getBoundingClientRect().width + gap);
+  }
+  const card = row.querySelector(".product-card");
+  if (!card) return PRODUCT_CAROUSEL_FALLBACK_STEP;
   return Math.round(card.getBoundingClientRect().width + gap);
 }
 
@@ -1050,7 +1393,12 @@ function wireProductCarousel(host) {
       dot.classList.toggle("is-active", i === idx);
       i += 1;
     }
-    prev.disabled = row.scrollLeft <= 2;
+    const routineWidget = host.closest("[data-skin-routine-widget]");
+    const routineFirstStepBack =
+      routineWidget instanceof HTMLElement &&
+      routineWidget.classList.contains("skin-routine-widget--show-routine") &&
+      row.scrollLeft <= 2;
+    prev.disabled = routineFirstStepBack ? false : row.scrollLeft <= 2;
     next.disabled = row.scrollLeft >= maxScroll - 2;
   };
 
@@ -1200,6 +1548,62 @@ function parseTryOnConfirmFromUserText(text) {
   return null;
 }
 
+/**
+ * @param {string | null} lockedConcernId set when the routine prompt was opened from a specific results card
+ * @returns {'single'|'all'|'decline'|null}
+ */
+function parseSkinRoutineIntent(text, lockedConcernId = null) {
+  const n = normalizeUserReply(text);
+  if (!n) return null;
+  if (/\b(no|not now|later|skip|pass|no thanks|not interested)\b/i.test(n)) return "decline";
+
+  const explicitAll =
+    /\b(general\s+routine|full\s+routine|complete\s+routine|all\s+concerns?|all\s+my\s+concerns?|every\s+concern|top\s+concerns?|top\s+scores?|all\s+scores?|overall\s+routine|across\s+my\s+concerns?|big\s+picture|whole\s+face|everything)\b/i.test(
+      n,
+    ) || /\bgeneral\b/i.test(n);
+  const explicitSingle =
+    /\b(targeted\s+routine|specific\s+routine|single\s+concern|this\s+concern|that\s+concern|focused\s+routine|just\s+this|only\s+this|only\s+one|narrow\s+focus)\b/i.test(n) ||
+    /\b(this|that)\s+one\b/i.test(n) ||
+    /\btargeted\b/i.test(n) ||
+    /\bspecific\b/i.test(n);
+
+  if (explicitAll && !explicitSingle) return "all";
+  if (explicitSingle && !explicitAll) return "single";
+
+  if (lockedConcernId) {
+    const concern = SKIN_DIAG_FAKE_CONCERNS.find((c) => c.id === lockedConcernId);
+    if (concern) {
+      const titleLc = concern.title.toLowerCase();
+      const compact = n.replace(/[^a-z0-9]+/g, "");
+      const titleCompact = titleLc.replace(/[^a-z0-9]+/g, "");
+      if (titleCompact.length > 3 && compact.includes(titleCompact)) return "single";
+      const words = titleLc
+        .split(/[^a-z0-9]+/)
+        .map((w) => w.trim())
+        .filter((w) => w.length > 2);
+      for (const w of words) {
+        if (n.includes(w)) return "single";
+      }
+    }
+    if (explicitAll) return "all";
+    if (explicitSingle) return "single";
+    if (/\b(routine|regimen|recommend|recommendation|products?|show|go|please)\b/i.test(n)) return "single";
+    if (/^(y|yes|yeah|yep|sure|ok|okay|please)\b/i.test(n)) return "single";
+    return null;
+  }
+
+  if (explicitAll) return "all";
+  if (explicitSingle) return "single";
+  if (/\b(all|overall)\b/i.test(n)) return "all";
+  if (/\b(this concern|that concern|focused|focus|just this)\b/i.test(n)) return "single";
+  if (/\b(routine|regimen|recommend|recommendation|products?)\b/i.test(n)) return "all";
+  return null;
+}
+
+function isNewRoutineShortcut(text) {
+  return /\bnew\s+routine\b/i.test(normalizeUserReply(text));
+}
+
 function budgetTierClarifyHtml() {
   return `<div class="assistant-text">
     <p style="margin:0 0 12px">I am not quite sure which lane you want yet—and that is completely fine.</p>
@@ -1305,7 +1709,6 @@ function tagsHTML(tags) {
     .map(
       (t) => `
     <span class="tag-chip">
-      <span class="tag-chip__dot" style="background:${escapeAttr(t.dot)};"></span>
       ${escapeHtml(t.label)}
     </span>`,
     )
@@ -1344,6 +1747,174 @@ function carouselDotsHTML(count, activeIndex) {
     parts.push(`<span${i === activeIndex ? ' class="is-active"' : ""}></span>`);
   }
   return `<div class="carousel-dots" role="tablist" aria-label="Slides">${parts.join("")}</div>`;
+}
+
+/** @param {{ title: string, blurb: string } | null} concern */
+function skinRoutinePromptHtml(concern) {
+  const concernLabel = concern ? concern.title : "your skin concern";
+  const concernBlurb = concern ? concern.blurb : "I can break this down in plain language and tailor the next steps.";
+  return `<div class="assistant-text">
+    <p style="margin:0 0 10px"><strong>${escapeHtml(concernLabel)}</strong> is one of your highlighted areas.</p>
+    <p style="margin:0 0 12px">${escapeHtml(concernBlurb)}</p>
+    <p style="margin:0">Want a <strong>general routine</strong> (for example <strong>top concerns</strong>, <strong>all concerns</strong>, or <strong>general routine</strong>) across your scores, or a <strong>targeted routine</strong> focused on this one? Reply naturally—<strong>targeted</strong>, <strong>this concern only</strong>, or naming the concern works for targeted; <strong>general</strong> or <strong>all concerns</strong> keeps the full picture.</p>
+  </div>`;
+}
+
+function getSkinRoutineHeroImage() {
+  const selfie = sessionPersistedSelfieUrl || vtoSelfiePreviewUrl;
+  if (selfie) return selfie;
+  if (skinRoutineFallbackImageUrl) return skinRoutineFallbackImageUrl;
+  const pool = ["assets/tryon-reference-model.png", "assets/ysl-1.jpg", "assets/ysl-2.jpg", "assets/mny-2.jpg"];
+  skinRoutineFallbackImageUrl = pool[Math.floor(Math.random() * pool.length)];
+  return skinRoutineFallbackImageUrl;
+}
+
+/** @param {{ title:string, score:number, scoreMax?: number, severity?: string }[]} top3 */
+function skinRoutineHeroCardHTML(top3) {
+  const imageUrl = getSkinRoutineHeroImage();
+  const metricsClass = top3.length === 1 ? " skin-routine-hero__metrics--single" : "";
+  const r = 22;
+  const circum = 2 * Math.PI * r;
+  const bubbles = top3
+    .map((c) => {
+      const max = c.scoreMax ?? 40;
+      const pct = Math.min(1, c.score / max);
+      const dash = circum * pct;
+      const sev = skinRoutineDisplaySeverity(c.score, max, c.severity);
+      return `
+      <div class="skin-routine-hero__metric">
+        <div class="skin-routine-hero__ring" aria-hidden="true">
+          <svg class="skin-routine-hero__ring-svg" viewBox="0 0 56 56" width="72" height="72">
+            <circle class="skin-routine-hero__ring-track" cx="28" cy="28" r="${r}" fill="none" stroke-width="5" />
+            <circle class="skin-routine-hero__ring-progress" cx="28" cy="28" r="${r}" fill="none" stroke-width="5"
+              stroke-dasharray="${dash} ${circum}" stroke-linecap="round" transform="rotate(-90 28 28)" />
+          </svg>
+          <span class="skin-routine-hero__ring-num">${c.score}</span>
+        </div>
+        <p class="skin-routine-hero__metric-severity">${escapeHtml(sev)}</p>
+        <p class="skin-routine-hero__metric-title">${escapeHtml(c.title)}</p>
+      </div>`;
+    })
+    .join("");
+  return `
+    <article class="skin-routine-hero-card">
+      <div class="skin-routine-hero__image-wrap">
+        <img class="skin-routine-hero__image" src="${escapeAttr(imageUrl)}" alt="" decoding="async" />
+        <h3 class="skin-routine-hero__title">Your Curated Routine</h3>
+      </div>
+      <div class="skin-routine-hero__metrics${metricsClass}">${bubbles}</div>
+      <div class="skin-routine-hero__footer">
+        <button type="button" class="btn-primary-lg skin-routine-hero__cta" data-routine-see>See routine</button>
+      </div>
+    </article>`;
+}
+
+/** @param {typeof SKIN_ROUTINE_STEPS[number]} step @param {number} index @param {number} total */
+function skinRoutineStepCardHTML(step, index, total) {
+  const panel = (mode, data) => `
+    <div class="skin-routine-product-panel" data-routine-panel="${mode}"${mode === "night" ? " hidden" : ""}>
+      <article class="product-card skin-routine-product-card">
+        <div class="product-card__header">
+          <span class="skin-routine-product-card__match">${data.match}% match</span>
+        </div>
+        <div class="product-card__content">
+          <div class="product-card__media">
+            <img class="product-card__photo" src="${escapeAttr(data.image)}" alt="" width="120" height="120" loading="lazy" decoding="async" />
+          </div>
+          <p class="skin-routine-product-card__brand">${escapeHtml(data.brand)}</p>
+          <h3 class="product-card__title">${escapeHtml(data.title)}</h3>
+          <div class="product-card__tag-row">
+            ${data.tags.map((t) => `<span class="tag-chip">${escapeHtml(t)}</span>`).join("")}
+          </div>
+        </div>
+        <div class="product-card__footer">
+          <button type="button" class="btn-primary-lg product-card__btn-primary skin-routine-product-card__cta" data-routine-unpack data-routine-unpack-step="${index}" data-routine-unpack-mode="${mode}">
+            <span>Unpack my match</span>
+            <span class="skin-routine-product-card__cta-icon" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 17 17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M7 7h10v10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </span>
+          </button>
+        </div>
+      </article>
+    </div>`;
+  return `
+    <div class="skin-routine-slide" data-step-label="${escapeAttr(step.step)}" data-step-part="${index + 1}" data-step-total="${total}">
+      ${panel("day", step.day)}
+      ${panel("night", step.night)}
+    </div>`;
+}
+
+/** @param {'single'|'all'} mode @param {string|null} concernId */
+function buildSkinRoutineCarouselBlock(mode, concernId) {
+  const mapHero = (c) => ({ title: c.title, score: c.score, scoreMax: c.scoreMax, severity: c.severity });
+  const top3 =
+    mode === "single" && concernId
+      ? (() => {
+          const one = SKIN_DIAG_FAKE_CONCERNS.find((c) => c.id === concernId);
+          return one ? [mapHero(one)] : [...SKIN_DIAG_FAKE_CONCERNS].sort((a, b) => b.score - a.score).slice(0, 3).map(mapHero);
+        })()
+      : [...SKIN_DIAG_FAKE_CONCERNS].sort((a, b) => b.score - a.score).slice(0, 3).map(mapHero);
+  const focus = concernId ? SKIN_DIAG_FAKE_CONCERNS.find((c) => c.id === concernId) : null;
+  const introHtml = skinRoutineHeroCardHTML(top3);
+  const total = SKIN_ROUTINE_STEPS.length;
+  const slideParts = [];
+  for (let i = 0; i < total; i += 1) {
+    slideParts.push(skinRoutineStepCardHTML(SKIN_ROUTINE_STEPS[i], i, total));
+  }
+  const followUpHtml =
+    mode === "single" && focus
+      ? `<div class="assistant-text" style="margin-top:14px">
+    <p style="margin:0 0 10px">I matched these steps to your profile with extra weight on <strong>${escapeHtml(focus.title)}</strong>, so the flow stays coherent without stacking conflicting actives.</p>
+    <p style="margin:0">If you would rather bias toward different brands, textures, or price points, tell me what you are optimizing for and I can suggest alternates for any slot.</p>
+  </div>`
+      : `<div class="assistant-text" style="margin-top:14px">
+    <p style="margin:0 0 10px">I mapped cleanse, treat, moisturize, and a finishing SPF to your top scores so the lineup reads sensibly from a formulation angle—not only “what is trending.”</p>
+    <p style="margin:0">If you want parallel picks (gentler options, drugstore equivalents, or a splurge upgrade in one step), say what you would like to lean into and we can swap ideas.</p>
+  </div>`;
+  return `
+    <div class="vto-attribution skin-routine-attribution">
+      <span class="vto-attribution__icon"><img src="assets/skin-diag-icon.png" alt="" width="24" height="24" decoding="async" /></span>
+      <span class="vto-attribution__label">Skin Diag</span>
+    </div>
+    <section class="skin-routine-widget" data-skin-routine-widget data-mode="day">
+      <div class="skin-routine-widget__stage">
+        <div class="skin-routine-widget__panels">
+          <div class="skin-routine-widget__panel skin-routine-widget__panel--intro" data-routine-intro aria-hidden="false">
+            ${introHtml}
+          </div>
+          <div class="skin-routine-widget__panel skin-routine-widget__panel--routine" data-routine-routine aria-hidden="true">
+            <div class="skin-routine-routine-inner">
+              <div class="skin-routine-widget__chrome" data-routine-chrome>
+                <div class="skin-routine-widget__toggle" role="tablist" aria-label="Routine mode">
+                  <button type="button" class="skin-routine-widget__toggle-btn is-active" data-routine-toggle="day" aria-selected="true">Day</button>
+                  <button type="button" class="skin-routine-widget__toggle-btn" data-routine-toggle="night" aria-selected="false">Night</button>
+                </div>
+                <div class="skin-routine-widget__step-row">
+                  <h3 class="skin-routine-widget__step-title" data-routine-step-label>Cleanse</h3>
+                  <span class="skin-routine-widget__step-index" data-routine-step-index>1/${total}</span>
+                </div>
+              </div>
+              <div class="product-carousel skin-routine-carousel" data-product-carousel>
+                <div class="product-carousel__strip">
+                  <button type="button" class="product-carousel__btn product-carousel__btn--prev" aria-label="Previous routine cards">
+                    <svg class="lucide lucide--16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m15 18-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                  </button>
+                  <button type="button" class="product-carousel__btn product-carousel__btn--next" aria-label="Next routine cards">
+                    <svg class="lucide lucide--16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m9 18 6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                  </button>
+                  <div class="slide-row">${slideParts.join("")}</div>
+                </div>
+                ${carouselDotsHTML(total, 0)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    ${followUpHtml}`;
 }
 
 function convActionsHTML() {
@@ -1418,12 +1989,11 @@ function buildCarousel(label) {
 /** @param {'luxury'|'budget'} tier */
 function foundationResultsCopy(tier) {
   const isLux = tier === "luxury";
-  const brand = isLux ? "Yves Saint Laurent" : "Maybelline";
   const vibe = isLux
-    ? "luxe finishes from sheer tint to full matte—still in the <strong>luxury</strong> lane you picked earlier"
-    : "drugstore-friendly staples with strong shade ranges—still in the <strong>budget-friendly</strong> lane you picked earlier";
+    ? "I loaded a few <strong>luxe</strong> foundation ideas—finishes from sheer tint to full matte—still in the <strong>luxury</strong> lane you picked earlier."
+    : "I loaded a few <strong>budget-friendly</strong> foundation picks—strong shade ranges—still in the <strong>budget-friendly</strong> lane you picked earlier.";
   return `
-    <p style="margin:0 0 10px">Here are four <strong>${brand}</strong> foundation ideas—${vibe}. <span aria-hidden="true">🧴</span></p>
+    <p style="margin:0 0 10px">${vibe} <span aria-hidden="true">🧴</span></p>
     <p style="margin:0">Tap <strong>Virtual Try-On</strong> on a card to keep comparing, or tell me your undertone, coverage, and finish and I will narrow this down further.</p>
   `;
 }
@@ -1437,12 +2007,12 @@ function resultsCopy(label) {
   const isLux = label === "Luxury";
   if (isLux) {
     return `
-      <p style="margin:0 0 10px">Here are four <strong>Yves Saint Laurent</strong> lip picks—gloss, satin, and matte finishes—in the <strong>pinky nude</strong> family you asked about. <span aria-hidden="true">💄</span></p>
+      <p style="margin:0 0 10px">I loaded a few <strong>luxe</strong> lip options—gloss, satin, and matte finishes—in the <strong>pinky nude</strong> family you asked about. <span aria-hidden="true">💄</span></p>
       <p style="margin:0">On any card, tap <strong>Virtual Try-On</strong> to compare finishes and undertones live.</p>
     `;
   }
   return `
-    <p style="margin:0 0 10px">Here are four <strong>Maybelline</strong> lip options—gloss, liquid matte, and satin—great <strong>budget-friendly</strong> ways to try pinky nudes. <span aria-hidden="true">💄</span></p>
+    <p style="margin:0 0 10px">I loaded a few <strong>budget-friendly</strong> lip options—gloss, liquid matte, and satin—easy ways to try pinky nudes. <span aria-hidden="true">💄</span></p>
     <p style="margin:0">Use <strong>Virtual Try-On</strong> on a card to see how each reads on you.</p>
   `;
 }
@@ -1516,10 +2086,12 @@ function prepareVtoShellVisible() {
   el.vtoFlow.hidden = false;
   el.vtoFlow.setAttribute("aria-hidden", "false");
   setVtoComposerChrome(true);
+  syncVtoExperienceBrandUi();
 }
 
 function launchVtoAfterTryOnConfirm() {
   tryOnFromChatSingleProduct = true;
+  vtoSkinBrandExperienceActive = false;
   prepareVtoShellVisible();
   if (!vtoUserAcceptedTerms) {
     showVtoTermsOnly();
@@ -1534,8 +2106,8 @@ function launchVtoAfterTryOnConfirm() {
     showVtoTryOn();
     return;
   }
-  showVtoModeOnly();
-  requestAnimationFrame(() => el.vtoModeLive.focus());
+  showVtoSelfieStub();
+  focusSelfieStubPrimaryAction();
 }
 
 async function sendUserMessage(text, promptMeta) {
@@ -1550,6 +2122,25 @@ async function sendUserMessage(text, promptMeta) {
   const myGen = chatGenerationEpoch;
 
   removeQuickReplies();
+
+  if (isNewRoutineShortcut(trimmed)) {
+    appendUserBubble(trimmed);
+    el.input.value = "";
+    autosizeComposer();
+    flow = "busy";
+    updateComposerTextState();
+    chatAwaitingTryOnConfirm = false;
+    chatAwaitingSkinDiagConfirm = false;
+    chatAwaitingBudgetTierReply = false;
+    chatAwaitingSkinRoutineChoice = false;
+    chatSkinRoutineConcernId = null;
+    await assistantThink();
+    if (myGen !== chatGenerationEpoch) return;
+    appendAssistantBlock(buildSkinRoutineCarouselBlock("all", null));
+    flow = "idle";
+    updateComposerTextState();
+    return;
+  }
 
   if (chatAwaitingTryOnConfirm) {
     appendUserBubble(trimmed);
@@ -1612,6 +2203,43 @@ async function sendUserMessage(text, promptMeta) {
     flow = "idle";
     updateComposerTextState();
     launchSkinDiagAfterConfirm();
+    return;
+  }
+
+  if (chatAwaitingSkinRoutineChoice) {
+    appendUserBubble(trimmed);
+    el.input.value = "";
+    autosizeComposer();
+    flow = "busy";
+    updateComposerTextState();
+    const routineChoice = parseSkinRoutineIntent(trimmed, chatSkinRoutineConcernId);
+    if (routineChoice === null) {
+      await assistantThink();
+      if (myGen !== chatGenerationEpoch) return;
+      const concern = chatSkinRoutineConcernId
+        ? SKIN_DIAG_FAKE_CONCERNS.find((c) => c.id === chatSkinRoutineConcernId) || null
+        : null;
+      appendAssistantBlock(skinRoutinePromptHtml(concern));
+      flow = "idle";
+      updateComposerTextState();
+      return;
+    }
+    chatAwaitingSkinRoutineChoice = false;
+    const focusConcernId = chatSkinRoutineConcernId;
+    chatSkinRoutineConcernId = null;
+    await assistantThink();
+    if (myGen !== chatGenerationEpoch) return;
+    if (routineChoice === "decline") {
+      appendAssistantBlock(
+        `<div class="assistant-text"><p style="margin:0">Totally fine. If you want it later, say <strong>build my routine</strong> and I will pick it up from your latest skin results.</p></div>`,
+      );
+      flow = "idle";
+      updateComposerTextState();
+      return;
+    }
+    appendAssistantBlock(buildSkinRoutineCarouselBlock(routineChoice, focusConcernId));
+    flow = "idle";
+    updateComposerTextState();
     return;
   }
 
@@ -1767,19 +2395,44 @@ function updateComposerTextState() {
 
 function syncComposerAppPill() {
   if (!el.composerAppPill) return;
-  el.composerAppPill.hidden = composerSelectedApp !== "vto";
+  const show = composerSelectedApp === "vto" || composerSelectedApp === "skin_diag";
+  el.composerAppPill.hidden = !show;
+  el.composerField?.classList.toggle("has-app", show);
+  if (!show) return;
+  const img = el.composerAppPill.querySelector("img");
+  const label = el.composerAppPill.querySelector(".composer-app-pill__label");
+  if (composerSelectedApp === "skin_diag") {
+    if (img) img.setAttribute("src", SKIN_DIAG_HEADER_ICON_SRC);
+    if (label) label.textContent = "Skin Diag";
+  } else {
+    if (img) img.setAttribute("src", VTO_TRYON_HEADER_ICON_SRC);
+    if (label) label.textContent = "Makeup Try-On";
+  }
 }
 
 function openComposerAppMenu() {
   if (!el.composerAppMenu) return;
+  if (composerAppMenuCloseTimer != null) {
+    window.clearTimeout(composerAppMenuCloseTimer);
+    composerAppMenuCloseTimer = null;
+  }
   el.composerAppMenu.hidden = false;
   el.composerAppMenu.setAttribute("aria-hidden", "false");
+  requestAnimationFrame(() => el.composerAppMenu?.classList.add("is-open"));
 }
 
 function closeComposerAppMenu() {
   if (!el.composerAppMenu) return;
-  el.composerAppMenu.hidden = true;
+  el.composerAppMenu.classList.remove("is-open");
   el.composerAppMenu.setAttribute("aria-hidden", "true");
+  if (composerAppMenuCloseTimer != null) {
+    window.clearTimeout(composerAppMenuCloseTimer);
+  }
+  composerAppMenuCloseTimer = window.setTimeout(() => {
+    if (!el.composerAppMenu) return;
+    el.composerAppMenu.hidden = true;
+    composerAppMenuCloseTimer = null;
+  }, 260);
 }
 
 function refreshComposerActionState() {
@@ -1826,6 +2479,12 @@ function initComposer() {
     closeComposerAppMenu();
     requestAnimationFrame(() => el.input?.focus());
   });
+  el.composerAppMenuSkinDiag?.addEventListener("click", () => {
+    composerSelectedApp = "skin_diag";
+    syncComposerAppPill();
+    closeComposerAppMenu();
+    requestAnimationFrame(() => el.input?.focus());
+  });
   el.composerAppPillClear?.addEventListener("click", () => {
     composerSelectedApp = null;
     syncComposerAppPill();
@@ -1851,10 +2510,71 @@ function productDetailSlideHTML(p) {
     </div>`;
 }
 
-function productDetailBadgesHTML(p) {
+/** @param {string} src */
+function productDetailSlideHTMLFromSrc(src) {
   return `
-    <span class="badge badge--filled">${escapeHtml(p.badgePrimary)}</span>
-    <span class="badge badge--outline">${escapeHtml(p.badgeSecondary)}</span>`;
+    <div class="product-detail__slide">
+      <img class="product-detail__slide-photo" src="${escapeAttr(src)}" alt="" loading="lazy" decoding="async" />
+    </div>`;
+}
+
+/** @param {{ match: number, tags: string[] }} d */
+function productDetailTagsRowForRoutine(d) {
+  const primary = `<span class="tag-chip product-detail__tag-pill product-detail__tag-pill--routine-match">${escapeHtml(String(d.match))}% match</span>`;
+  const tagChips = d.tags.map((t) => `<span class="tag-chip product-detail__tag-pill">${escapeHtml(t)}</span>`).join("");
+  return primary + tagChips;
+}
+
+/** @param {'day'|'night'} mode @param {number} currentStepIndex */
+function renderProductDetailRoutineAlternates(mode, currentStepIndex) {
+  if (!el.productDetailAlternatesStrip || !el.productDetailAlternatesSub) return;
+  const modeLabel = mode === "night" ? "night" : "day";
+  el.productDetailAlternatesSub.textContent = `Other picks from your ${modeLabel} routine. Tap a card to view details.`;
+  const parts = [];
+  for (let i = 0; i < SKIN_ROUTINE_STEPS.length; i += 1) {
+    const stepDef = SKIN_ROUTINE_STEPS[i];
+    const data = stepDef[mode];
+    if (!data) continue;
+    const cur = i === currentStepIndex ? " product-detail__alternate-card--current" : "";
+    parts.push(`<article class="product-card skin-routine-product-card product-detail__alternate-card${cur}" data-detail-alternate-step="${i}" role="listitem" tabindex="0">
+        <div class="product-card__header">
+          <span class="skin-routine-product-card__match">${data.match}% match</span>
+        </div>
+        <div class="product-card__content">
+          <div class="product-card__media">
+            <img class="product-card__photo" src="${escapeAttr(data.image)}" alt="" width="120" height="120" loading="lazy" decoding="async" />
+          </div>
+          <p class="skin-routine-product-card__brand">${escapeHtml(data.brand)}</p>
+          <h3 class="product-card__title">${escapeHtml(data.title)}</h3>
+          <div class="product-card__tag-row">
+            ${data.tags.map((t) => `<span class="tag-chip">${escapeHtml(t)}</span>`).join("")}
+          </div>
+        </div>
+      </article>`);
+  }
+  el.productDetailAlternatesStrip.innerHTML = parts.join("");
+}
+
+/** @param {typeof SKIN_ROUTINE_STEPS[number]["day"] & { stepLabel: string }} pick */
+function routinePickToWhereToBuyProduct(pick) {
+  const shade = pick.tags[0] || "Skin routine pick";
+  return {
+    brand: pick.brand,
+    title: pick.title,
+    shadeLabel: shade,
+    swatch: "#c8c8c8",
+  };
+}
+
+function productDetailTagsRowHTML(p) {
+  const primary = `<span class="tag-chip product-detail__tag-pill">${escapeHtml(p.badgePrimary)}</span>`;
+  const tagChips = p.tags
+    .map(
+      (t) => `
+    <span class="tag-chip product-detail__tag-pill">${escapeHtml(t.label)}</span>`,
+    )
+    .join("");
+  return primary + tagChips;
 }
 
 function syncProductDetailDots() {
@@ -1874,6 +2594,12 @@ function closeProductDetail() {
   if (el.productDetail.hidden) return;
   el.productDetail.hidden = true;
   el.productDetail.setAttribute("aria-hidden", "true");
+  el.productDetail.classList.remove("product-detail--routine");
+  el.productDetailUnpack.hidden = true;
+  el.productDetailAlternates.hidden = true;
+  el.productDetailShadeRow.hidden = false;
+  productDetailKind = "vto";
+  productDetailSkinRoutinePick = null;
 }
 
 /** Remembered from the budget quick reply so follow-ups (e.g. foundations) match the same tier. */
@@ -1891,8 +2617,42 @@ let chatAwaitingTryOnConfirm = false;
 /** Waiting for typed confirmation before opening Skin Diagnosis (terms flow). */
 let chatAwaitingSkinDiagConfirm = false;
 
+/** Waiting for typed choice after opening a concern from skin results. */
+let chatAwaitingSkinRoutineChoice = false;
+let chatSkinRoutineConcernId = /** @type {string | null} */ (null);
+
 /** @type {{ tier: 'luxury'|'budget'; index: number; catalog: ProductCatalogId } | null} */
 let vtoSelectedProductKey = null;
+
+/** Which flow populated the product detail sheet (controls footer + unpack block). */
+let productDetailKind = /** @type {'vto'|'skin_routine'} */ ("vto");
+
+/** Routine row shown in detail + “Where to buy” when opened from Skin Routine unpack. */
+let productDetailSkinRoutinePick =
+  /** @type {((typeof SKIN_ROUTINE_STEPS)[number]["day"] & { stepLabel: string; stepIndex: number }) | null} */ (null);
+
+/** Day vs night row used for the alternates carousel while a routine product detail is open. */
+let productDetailSkinRoutineMode = /** @type {'day'|'night'} */ ("day");
+
+/** @param {number} score @param {number} scoreMax */
+function skinRoutineScoreTier(score, scoreMax) {
+  const max = scoreMax > 0 ? scoreMax : 40;
+  const r = score / max;
+  if (r < 0.375) return "Mild";
+  if (r < 0.7) return "Moderate";
+  return "Significant";
+}
+
+/** @param {number} score @param {number} scoreMax @param {string} [explicitFromConcern] */
+function skinRoutineDisplaySeverity(score, scoreMax, explicitFromConcern) {
+  const e = String(explicitFromConcern || "")
+    .trim()
+    .toLowerCase();
+  if (e === "mild" || e === "moderate" || e === "significant") {
+    return e.charAt(0).toUpperCase() + e.slice(1);
+  }
+  return skinRoutineScoreTier(score, scoreMax);
+}
 
 /** @param {'luxury'|'budget'} tier @param {number} index @param {ProductCatalogId} [catalog] */
 function openProductDetail(tier, index, catalog = "lips") {
@@ -1900,23 +2660,73 @@ function openProductDetail(tier, index, catalog = "lips") {
   if (!list || !list[index]) return;
   const p = list[index];
   vtoSelectedProductKey = { tier, index, catalog };
+  productDetailKind = "vto";
+  productDetailSkinRoutinePick = null;
+  el.productDetail.classList.remove("product-detail--routine");
+  el.productDetailUnpack.hidden = true;
+  el.productDetailAlternates.hidden = true;
+  el.productDetailShadeRow.hidden = false;
 
   el.productDetailBrand.textContent = p.brand;
   el.productDetailTitle.textContent = p.title;
-  el.productDetailBadges.innerHTML = productDetailBadgesHTML(p);
-  el.productDetailTags.innerHTML = tagsHTML(p.tags);
+  el.productDetailTags.innerHTML = productDetailTagsRowHTML(p);
   el.productDetailShadeDot.style.background = p.swatch;
   el.productDetailShadeLabel.textContent = p.shadeLabel;
-  el.productDetailMeta.innerHTML = `
-    <div class="price-row">
-      <span class="price-row__was">${escapeHtml(p.priceWas)}</span>
-      <span>${escapeHtml(p.priceNow)}</span>
-    </div>
-    ${ratingRowHTML(p)}`;
+  el.productDetailMeta.innerHTML = "";
   el.productDetailDescription.textContent = p.description;
   el.productDetailIngredientsBody.textContent = p.ingredients;
 
   const slidesHtml = Array.from({ length: PRODUCT_DETAIL_SLIDES }, () => productDetailSlideHTML(p)).join("");
+  el.productDetailSlides.innerHTML = slidesHtml;
+  const dotParts = [];
+  for (let i = 0; i < PRODUCT_DETAIL_SLIDES; i += 1) {
+    dotParts.push(`<span${i === 0 ? ' class="is-active"' : ""}></span>`);
+  }
+  el.productDetailDots.innerHTML = dotParts.join("");
+
+  el.productDetail.hidden = false;
+  el.productDetail.setAttribute("aria-hidden", "false");
+  el.productDetailScroll.scrollTop = 0;
+  el.productDetailSlides.scrollLeft = 0;
+  requestAnimationFrame(() => {
+    syncProductDetailDots();
+    el.productDetailClose.focus();
+  });
+}
+
+/** @param {number} stepIndex @param {'day'|'night'} mode */
+function openSkinRoutineProductDetail(stepIndex, mode) {
+  const stepDef = SKIN_ROUTINE_STEPS[stepIndex];
+  if (!stepDef) return;
+  const row = stepDef[mode];
+  if (!row || !row.description || !row.ingredients || !row.unpackBullets) return;
+
+  vtoSelectedProductKey = null;
+  productDetailKind = "skin_routine";
+  productDetailSkinRoutineMode = mode;
+  productDetailSkinRoutinePick = { ...row, stepLabel: stepDef.step, stepIndex };
+
+  el.productDetail.classList.add("product-detail--routine");
+  el.productDetailUnpack.hidden = false;
+  el.productDetailAlternates.hidden = false;
+  el.productDetailShadeRow.hidden = true;
+  renderProductDetailRoutineAlternates(mode, stepIndex);
+
+  el.productDetailBrand.textContent = row.brand;
+  el.productDetailTitle.textContent = row.title;
+  el.productDetailTags.innerHTML = productDetailTagsRowForRoutine(row);
+  el.productDetailMeta.innerHTML = row.price
+    ? `<div class="price-row"><span class="price-row__now">${escapeHtml(row.price)}</span></div>`
+    : "";
+  el.productDetailDescription.textContent = row.description;
+  el.productDetailIngredientsBody.textContent = row.ingredients;
+
+  el.productDetailUnpackLede.textContent =
+    "Based on your Skin Diag scores and concerns, this pick was weighted for formulation fit—not only popularity. A few signals behind the match score:";
+
+  el.productDetailUnpackList.innerHTML = row.unpackBullets.map((b) => `<li>${escapeHtml(b)}</li>`).join("");
+
+  const slidesHtml = Array.from({ length: PRODUCT_DETAIL_SLIDES }, () => productDetailSlideHTMLFromSrc(row.image)).join("");
   el.productDetailSlides.innerHTML = slidesHtml;
   const dotParts = [];
   for (let i = 0; i < PRODUCT_DETAIL_SLIDES; i += 1) {
@@ -2408,7 +3218,6 @@ function showVtoTryOn() {
   stopVtoCameraStream();
   hideSelfiePermModal();
   el.vtoTermsPanel.hidden = true;
-  el.vtoModePanel.hidden = true;
   el.vtoLiveStubPanel.hidden = true;
   el.vtoSelfieStubPanel.hidden = true;
   el.vtoSelfieConfirmPanel.hidden = true;
@@ -2456,7 +3265,8 @@ function initProductDetail() {
 
   el.productDetailBuy.addEventListener("click", () => {
     void (async () => {
-      const { product } = getVtoProduct();
+      const pick = productDetailKind === "skin_routine" ? productDetailSkinRoutinePick : null;
+      const product = pick ? routinePickToWhereToBuyProduct(pick) : getVtoProduct().product;
       closeProductDetail();
       enterChatView();
       chatGenerationEpoch += 1;
@@ -2475,6 +3285,24 @@ function initProductDetail() {
   });
 
   el.productDetailSlides.addEventListener("scroll", () => syncProductDetailDots(), { passive: true });
+
+  el.productDetailAlternatesStrip?.addEventListener("click", (e) => {
+    const card = e.target.closest("[data-detail-alternate-step]");
+    if (!card || !(card instanceof HTMLElement)) return;
+    const step = Number(card.getAttribute("data-detail-alternate-step"));
+    if (!Number.isFinite(step)) return;
+    openSkinRoutineProductDetail(step, productDetailSkinRoutineMode);
+  });
+
+  el.productDetailAlternatesStrip?.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const card = e.target.closest("[data-detail-alternate-step]");
+    if (!card || !(card instanceof HTMLElement)) return;
+    e.preventDefault();
+    const step = Number(card.getAttribute("data-detail-alternate-step"));
+    if (!Number.isFinite(step)) return;
+    openSkinRoutineProductDetail(step, productDetailSkinRoutineMode);
+  });
 
   window.addEventListener("resize", () => {
     if (!el.productDetail.hidden) syncProductDetailDots();
@@ -2519,13 +3347,42 @@ function clearVtoCaptureTimers() {
   vtoCaptureTimers.length = 0;
 }
 
-function resetSelfieGuidePath() {
-  const path = el.vtoSelfieGuidePath;
+/** @param {SVGPathElement | null} path */
+function resetSelfieGuidePathElement(path) {
   if (!path) return;
   path.classList.remove("is-visible");
   path.style.transition = "";
   path.style.removeProperty("stroke-dasharray");
   path.style.removeProperty("stroke-dashoffset");
+}
+
+function resetSelfieGuidePath() {
+  resetSelfieGuidePathElement(el.vtoSelfieGuidePath);
+  resetSelfieGuidePathElement(el.vtoSelfieGuidePathLeft);
+  resetSelfieGuidePathElement(el.vtoSelfieGuidePathRight);
+}
+
+/**
+ * Skin diagnosis head-turn UX: fill only the left or right arc of the oval to match turn direction.
+ * @param {'left'|'right'} side
+ * @param {number} durationMs
+ */
+function animateSelfieGuideHalf(side, durationMs) {
+  const path = side === "left" ? el.vtoSelfieGuidePathLeft : el.vtoSelfieGuidePathRight;
+  if (!path) return Promise.resolve();
+  let len = path.getTotalLength();
+  if (!Number.isFinite(len) || len <= 0) len = 600;
+  path.style.strokeDasharray = String(len);
+  path.style.strokeDashoffset = String(len);
+  path.classList.add("is-visible");
+  return new Promise((resolve) => {
+    const sec = Math.max(0.35, durationMs / 1000);
+    requestAnimationFrame(() => {
+      path.style.transition = `stroke-dashoffset ${sec}s linear`;
+      path.style.strokeDashoffset = "0";
+    });
+    window.setTimeout(resolve, durationMs + 60);
+  });
 }
 
 function stopVtoCameraStream() {
@@ -2546,6 +3403,7 @@ function hideSelfiePermModal() {
 }
 
 function showSelfiePermModal() {
+  syncVtoExperienceBrandUi();
   el.vtoSelfiePermModal.hidden = false;
   requestAnimationFrame(() => el.vtoSelfiePermDeny.focus());
 }
@@ -2553,7 +3411,6 @@ function showSelfiePermModal() {
 function showVtoSelfieCameraPanel() {
   hideVtoTryOnPanel();
   el.vtoTermsPanel.hidden = true;
-  el.vtoModePanel.hidden = true;
   el.vtoLiveStubPanel.hidden = true;
   el.vtoSelfieStubPanel.hidden = true;
   el.vtoSelfieConfirmPanel.hidden = true;
@@ -2561,6 +3418,7 @@ function showVtoSelfieCameraPanel() {
   hideSkinDiagResultsPanel();
   hideSkinDiagQuestionnairePanel();
   el.vtoSelfieCameraPanel.hidden = false;
+  syncVtoExperienceBrandUi();
 }
 
 function retakeVtoSelfie() {
@@ -2591,32 +3449,39 @@ function waitForSelfieVideoSize() {
   });
 }
 
-/** Skin Diagnosis: head pose prompts before the existing countdown + capture. */
+/** Skin Diagnosis: post-countdown head pose prompts + matching half-oval progress ring. */
 async function startSkinDiagHeadTurnPhases() {
-  el.vtoSelfieGuidePill.textContent = "Slowly turn your head to the left — keep moving for 2 seconds";
-  await wait(2000);
-  el.vtoSelfieGuidePill.textContent = "Now slowly turn your head to the right — keep moving for 2 seconds";
-  await wait(2000);
-  el.vtoSelfieGuidePill.textContent = "Great. Face forward and stay relaxed for the next step.";
-  await wait(900);
+  resetSelfieGuidePath();
+  el.vtoSelfieGuidePill.textContent = "Look straight ahead";
+  await wait(1200);
+  el.vtoSelfieGuidePill.textContent = "Turn your face to the right ›";
+  await animateSelfieGuideHalf("right", 1900);
+  resetSelfieGuidePathElement(el.vtoSelfieGuidePathRight);
+  el.vtoSelfieGuidePill.textContent = "‹ Turn your face to the left";
+  await animateSelfieGuideHalf("left", 1900);
+  resetSelfieGuidePathElement(el.vtoSelfieGuidePathLeft);
+  resetSelfieGuidePathElement(el.vtoSelfieGuidePathRight);
+  el.vtoSelfieGuidePill.textContent = "Perfect. Hold still.";
+  await wait(700);
   el.vtoSelfieGuidePill.textContent = "";
 }
 
-function startSelfieCaptureSequence() {
+async function runSelfieCountdownOnly() {
+  for (let n = 3; n >= 1; n -= 1) {
+    el.vtoSelfieGuidePill.textContent = `${n}...`;
+    await wait(1000);
+  }
+}
+
+/**
+ * @param {{ skipCountdown?: boolean }} [opts]
+ */
+function startSelfieCaptureSequence(opts = {}) {
+  const skipCountdown = !!opts.skipCountdown;
   clearVtoCaptureTimers();
   resetSelfieGuidePath();
 
-  /** @param {number} n */
-  function runCountdown(n, done) {
-    if (n <= 0) {
-      done();
-      return;
-    }
-    el.vtoSelfieGuidePill.textContent = `Get ready…${n}`;
-    queueCaptureTimer(() => runCountdown(n - 1, done), 1000);
-  }
-
-  runCountdown(3, () => {
+  function runCaptureWindow() {
     el.vtoSelfieGuidePill.textContent = "Stay just like that";
     const path = el.vtoSelfieGuidePath;
     if (path) {
@@ -2638,7 +3503,24 @@ function startSelfieCaptureSequence() {
       }
       captureSelfieFrameFromVideo();
     }, 2700);
-  });
+  }
+
+  /** @param {number} n */
+  function runCountdown(n, done) {
+    if (n <= 0) {
+      done();
+      return;
+    }
+    // Keep countdown copy compact to mirror the target selfie UX.
+    el.vtoSelfieGuidePill.textContent = `${n}...`;
+    queueCaptureTimer(() => runCountdown(n - 1, done), 1000);
+  }
+
+  if (skipCountdown) {
+    runCaptureWindow();
+    return;
+  }
+  runCountdown(3, runCaptureWindow);
 }
 
 function captureSelfieFrameFromVideo() {
@@ -2712,7 +3594,10 @@ async function startSelfieCameraFromPermAllow() {
     await waitForSelfieVideoSize();
     el.vtoSelfieGuidePill.textContent = "";
     if (skinDiagFlowActive) {
+      await runSelfieCountdownOnly();
       await startSkinDiagHeadTurnPhases();
+      startSelfieCaptureSequence({ skipCountdown: true });
+      return;
     }
     startSelfieCaptureSequence();
   } catch {
@@ -2783,6 +3668,15 @@ function finishSkinDiagFlowToChat() {
   requestAnimationFrame(() => el.input?.focus());
 }
 
+/** @param {string} concernId */
+function openSkinDiagConcernInChat(concernId) {
+  const concern = SKIN_DIAG_FAKE_CONCERNS.find((c) => c.id === concernId) || null;
+  finishSkinDiagFlowToChat();
+  chatAwaitingSkinRoutineChoice = true;
+  chatSkinRoutineConcernId = concernId;
+  appendAssistantBlock(skinRoutinePromptHtml(concern));
+}
+
 function applySkinDiagResultsZoom() {
   const pan = el.vtoSkinDiagResultsPan;
   if (!pan) return;
@@ -2796,7 +3690,7 @@ function applySkinDiagResultsZoom() {
     return;
   }
   pan.style.setProperty("--sd-origin-x", `${concern.zoom.x * 100}%`);
-  pan.style.setProperty("--sd-origin-y", `${concern.zoom.y * 100}%`);
+  pan.style.setProperty("--sd-origin-y", `${skinDiagFaceMapY(concern.zoom.y) * 100}%`);
   pan.style.setProperty("--sd-scale", String(concern.zoom.scale));
 }
 
@@ -2846,7 +3740,7 @@ function mountSkinDiagResultsMarkers() {
     btn.type = "button";
     btn.className = "vto-skin-diag-results__marker vto-skin-diag-results__marker--point";
     btn.style.left = `${c.marker.x * 100}%`;
-    btn.style.top = `${c.marker.y * 100}%`;
+    btn.style.top = `${skinDiagFaceMapY(c.marker.y) * 100}%`;
     btn.dataset.concernId = c.id;
     btn.setAttribute("aria-label", `${c.title} on face`);
     btn.addEventListener("click", (e) => {
@@ -2863,7 +3757,7 @@ function mountSkinDiagResultsCards(imageUrl) {
   const rail = el.vtoSkinDiagResultsCards;
   if (!rail) return;
   rail.replaceChildren();
-  const r = 24;
+  const r = 22;
   const circum = 2 * Math.PI * r;
   for (const c of SKIN_DIAG_FAKE_CONCERNS) {
     const pct = Math.min(1, c.score / c.scoreMax);
@@ -2882,23 +3776,22 @@ function mountSkinDiagResultsCards(imageUrl) {
           <div class="vto-skin-diag-results__card-copy">
             <h3 class="vto-skin-diag-results__card-title"></h3>
             <div class="vto-skin-diag-results__card-tag">
-              <span class="vto-skin-diag-results__card-tag-dot" aria-hidden="true"></span>
               <span class="vto-skin-diag-results__card-tag-label"></span>
             </div>
           </div>
         </div>
         <div class="vto-skin-diag-results__card-score-wrap" aria-hidden="true">
-          <svg class="vto-skin-diag-results__card-score-svg" viewBox="0 0 60 60" width="60" height="60">
-            <circle class="vto-skin-diag-results__card-score-track" cx="30" cy="30" r="${r}" fill="none" stroke-width="3" />
-            <circle class="vto-skin-diag-results__card-score-progress" cx="30" cy="30" r="${r}" fill="none" stroke-width="3"
-              stroke-dasharray="${dash} ${circum}" stroke-linecap="round" />
+          <svg class="vto-skin-diag-results__card-score-svg" viewBox="0 0 56 56" width="56" height="56">
+            <circle class="vto-skin-diag-results__card-score-track" cx="28" cy="28" r="${r}" fill="none" stroke-width="5" />
+            <circle class="vto-skin-diag-results__card-score-progress" cx="28" cy="28" r="${r}" fill="none" stroke-width="5"
+              stroke-dasharray="${dash} ${circum}" stroke-linecap="round" transform="rotate(-90 28 28)" />
           </svg>
           <span class="vto-skin-diag-results__card-score-num"></span>
         </div>
       </div>
       <div class="vto-skin-diag-results__card-content">
         <p class="vto-skin-diag-results__card-body"></p>
-        <button type="button" class="vto-skin-diag-results__card-arrow" aria-label="Open concern details (coming soon)">
+        <button type="button" class="vto-skin-diag-results__card-arrow" aria-label="Open concern details in chat">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <path d="M7 17 17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             <path d="M7 7h10v10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -2910,7 +3803,7 @@ function mountSkinDiagResultsCards(imageUrl) {
     img.src = imageUrl;
     img.alt = "";
     const fx = c.marker.x * 100;
-    const fy = c.marker.y * 100;
+    const fy = skinDiagFaceMapY(c.marker.y) * 100;
     const pos = `${fx}% ${fy}%`;
     img.style.objectPosition = pos;
     img.style.transformOrigin = pos;
@@ -2939,6 +3832,7 @@ function mountSkinDiagResultsCards(imageUrl) {
     arrow?.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
+      openSkinDiagConcernInChat(c.id);
     });
     rail.append(wrap);
   }
@@ -2956,7 +3850,6 @@ function showSkinDiagResultsPanel(imageUrl) {
   hideSelfiePermModal();
   hideVtoTryOnPanel();
   el.vtoTermsPanel.hidden = true;
-  el.vtoModePanel.hidden = true;
   el.vtoLiveStubPanel.hidden = true;
   el.vtoSelfieStubPanel.hidden = true;
   el.vtoSelfieConfirmPanel.hidden = true;
@@ -2981,7 +3874,6 @@ function startSkinDiagPostQuizLoading(imageUrl) {
   hideSelfiePermModal();
   hideVtoTryOnPanel();
   el.vtoTermsPanel.hidden = true;
-  el.vtoModePanel.hidden = true;
   el.vtoLiveStubPanel.hidden = true;
   el.vtoSelfieStubPanel.hidden = true;
   el.vtoSelfieConfirmPanel.hidden = true;
@@ -3034,6 +3926,24 @@ function syncSkinDiagQuizContinueEnabled() {
   el.vtoSkinQuizContinue.disabled = !has;
 }
 
+function skinDiagQuestionnaireAdvanceFromCurrentStep() {
+  const step = SKIN_DIAG_QUIZ_STEPS[skinDiagQuizStep];
+  if (!step) return;
+  if (step.last) {
+    window.__lastSkinDiagQuizAnswers = { ...skinDiagQuizAnswers };
+    hideSkinDiagQuestionnairePanel();
+    startSkinDiagPostQuizFlow();
+    return;
+  }
+  skinDiagQuizStep += 1;
+  renderSkinDiagQuestionnaireStep();
+  requestAnimationFrame(() => {
+    const first = el.vtoSkinQuizOptions?.querySelector(".vto-skin-quiz__option");
+    if (first) first.focus();
+    else el.vtoSkinQuizContinue?.focus();
+  });
+}
+
 function renderSkinDiagQuestionnaireStep() {
   const step = SKIN_DIAG_QUIZ_STEPS[skinDiagQuizStep];
   if (!step) return;
@@ -3082,7 +3992,7 @@ function renderSkinDiagQuestionnaireStep() {
       if (step.showPreferNot) {
         el.vtoSkinQuizPreferNot.classList.remove("vto-skin-quiz__prefer-not--on");
       }
-      renderSkinDiagQuestionnaireStep();
+      skinDiagQuestionnaireAdvanceFromCurrentStep();
     });
     el.vtoSkinQuizOptions.append(btn);
   }
@@ -3098,7 +4008,6 @@ function showSkinDiagQuestionnairePanel() {
   hideSkinDiagResultsPanel();
   setVtoComposerChrome(true);
   el.vtoTermsPanel.hidden = true;
-  el.vtoModePanel.hidden = true;
   el.vtoLiveStubPanel.hidden = true;
   el.vtoSelfieStubPanel.hidden = true;
   el.vtoSelfieConfirmPanel.hidden = true;
@@ -3125,15 +4034,7 @@ function skinDiagQuestionnaireContinue() {
   if (!step) return;
   const v = skinDiagQuizAnswers[step.key];
   if (v == null || v === "") return;
-  if (step.last) {
-    window.__lastSkinDiagQuizAnswers = { ...skinDiagQuizAnswers };
-    hideSkinDiagQuestionnairePanel();
-    startSkinDiagPostQuizFlow();
-    return;
-  }
-  skinDiagQuizStep += 1;
-  renderSkinDiagQuestionnaireStep();
-  requestAnimationFrame(() => el.vtoSkinQuizContinue.focus());
+  skinDiagQuestionnaireAdvanceFromCurrentStep();
 }
 
 function showVtoTermsOnly() {
@@ -3145,25 +4046,10 @@ function showVtoTermsOnly() {
   hideSkinDiagResultsPanel();
   hideSkinDiagQuestionnairePanel();
   el.vtoTermsPanel.hidden = false;
-  el.vtoModePanel.hidden = true;
   el.vtoLiveStubPanel.hidden = true;
   el.vtoSelfieStubPanel.hidden = true;
   el.vtoSelfieConfirmPanel.hidden = true;
-}
-
-function showVtoModeOnly() {
-  stopVtoCameraStream();
-  hideSelfiePermModal();
-  hideVtoTryOnPanel();
-  clearSkinDiagPostQuizTimer();
-  hideSkinDiagLoadingPanel();
-  hideSkinDiagResultsPanel();
-  hideSkinDiagQuestionnairePanel();
-  el.vtoTermsPanel.hidden = true;
-  el.vtoModePanel.hidden = false;
-  el.vtoLiveStubPanel.hidden = true;
-  el.vtoSelfieStubPanel.hidden = true;
-  el.vtoSelfieConfirmPanel.hidden = true;
+  syncVtoExperienceBrandUi();
 }
 
 function showVtoLiveStub() {
@@ -3175,10 +4061,10 @@ function showVtoLiveStub() {
   hideSkinDiagResultsPanel();
   hideSkinDiagQuestionnairePanel();
   el.vtoTermsPanel.hidden = true;
-  el.vtoModePanel.hidden = true;
   el.vtoLiveStubPanel.hidden = false;
   el.vtoSelfieStubPanel.hidden = true;
   el.vtoSelfieConfirmPanel.hidden = true;
+  syncVtoExperienceBrandUi();
 }
 
 function showVtoSelfieStub() {
@@ -3190,11 +4076,11 @@ function showVtoSelfieStub() {
   hideSkinDiagResultsPanel();
   hideSkinDiagQuestionnairePanel();
   el.vtoTermsPanel.hidden = true;
-  el.vtoModePanel.hidden = true;
   el.vtoLiveStubPanel.hidden = true;
   el.vtoSelfieStubPanel.hidden = false;
   el.vtoSelfieConfirmPanel.hidden = true;
-  applySelfieStubSkinDiagUi(!!skinDiagFlowActive);
+  applySelfieStubSkinDiagUi(!!(skinDiagFlowActive || vtoSkinBrandExperienceActive));
+  syncVtoExperienceBrandUi();
 }
 
 function showVtoSelfieConfirm() {
@@ -3206,10 +4092,10 @@ function showVtoSelfieConfirm() {
   hideSkinDiagResultsPanel();
   hideSkinDiagQuestionnairePanel();
   el.vtoTermsPanel.hidden = true;
-  el.vtoModePanel.hidden = true;
   el.vtoLiveStubPanel.hidden = true;
   el.vtoSelfieStubPanel.hidden = true;
   el.vtoSelfieConfirmPanel.hidden = false;
+  syncVtoExperienceBrandUi();
 }
 
 function resetVtoFlowPanels() {
@@ -3227,7 +4113,7 @@ function resetVtoFlowPanels() {
   el.vtoTermsCheckbox.checked = false;
   syncVtoConsentButton();
   if (vtoUserAcceptedTerms) {
-    showVtoModeOnly();
+    showVtoSelfieStub();
   } else {
     showVtoTermsOnly();
   }
@@ -3239,25 +4125,29 @@ function closeVtoFlow() {
   el.vtoFlow.setAttribute("aria-hidden", "true");
   tryOnFromChatSingleProduct = false;
   skinDiagFlowActive = false;
+  vtoSkinBrandExperienceActive = false;
   applySelfieStubSkinDiagUi(false);
   resetVtoFlowPanels();
   setVtoComposerChrome(false);
   setComposerForChatMode();
+  syncVtoExperienceBrandUi();
 }
 
 function openVtoTermsFlow() {
   skinDiagFlowActive = false;
+  vtoSkinBrandExperienceActive = false;
   tryOnFromChatSingleProduct = false;
   closeProductDetail();
   resetVtoFlowPanels();
   el.vtoFlow.hidden = false;
   el.vtoFlow.setAttribute("aria-hidden", "false");
   setVtoComposerChrome(true);
+  syncVtoExperienceBrandUi();
   requestAnimationFrame(() => {
     if (!vtoUserAcceptedTerms) {
       el.vtoTermsClose.focus();
     } else {
-      el.vtoModeLive.focus();
+      focusSelfieStubPrimaryAction();
     }
   });
 }
@@ -3272,8 +4162,8 @@ function goVtoStepAfterConsent() {
     showVtoTryOn();
     return;
   }
-  showVtoModeOnly();
-  requestAnimationFrame(() => el.vtoModeLive.focus());
+  showVtoSelfieStub();
+  focusSelfieStubPrimaryAction();
 }
 
 function initVtoFlow() {
@@ -3305,29 +4195,19 @@ function initVtoFlow() {
   });
 
   el.vtoTermsClose.addEventListener("click", () => closeVtoFlow());
-  el.vtoModeClose.addEventListener("click", () => closeVtoFlow());
 
-  el.vtoModeLive.addEventListener("click", () => {
+  el.vtoStubLiveMode.addEventListener("click", () => {
     showVtoLiveStub();
     requestAnimationFrame(() => el.vtoLiveStubDone.focus());
   });
 
-  el.vtoModeSelfie.addEventListener("click", () => {
-    showVtoSelfieStub();
-    requestAnimationFrame(() => el.vtoSelfieTake.focus());
-  });
-
-  el.vtoModePrivacyLearn.addEventListener("click", (e) => {
-    e.preventDefault();
-  });
-
   el.vtoLiveStubBack.addEventListener("click", () => {
-    showVtoModeOnly();
-    requestAnimationFrame(() => el.vtoModeLive.focus());
+    showVtoSelfieStub();
+    focusSelfieStubPrimaryAction();
   });
   el.vtoLiveStubDone.addEventListener("click", () => {
-    showVtoModeOnly();
-    requestAnimationFrame(() => el.vtoModeLive.focus());
+    showVtoSelfieStub();
+    focusSelfieStubPrimaryAction();
   });
 
   el.vtoSelfieStubClose.addEventListener("click", () => closeVtoFlow());
@@ -3340,13 +4220,12 @@ function initVtoFlow() {
     e.preventDefault();
   });
 
-  el.vtoSelfieStubDone.addEventListener("click", () => {
-    showVtoModeOnly();
-    requestAnimationFrame(() => el.vtoModeSelfie.focus());
-  });
-
   el.vtoSelfieTake.addEventListener("click", () => {
     showSelfiePermModal();
+  });
+
+  el.vtoSelfieUploadPhoto?.addEventListener("click", () => {
+    el.vtoSelfieFileInput?.click();
   });
 
   el.vtoSelfiePermDeny.addEventListener("click", () => {
@@ -3372,10 +4251,6 @@ function initVtoFlow() {
 
   el.vtoSelfieCameraInfo.addEventListener("click", (e) => {
     e.preventDefault();
-  });
-
-  el.vtoSelfieUpload.addEventListener("click", () => {
-    el.vtoSelfieFileInput.click();
   });
 
   el.vtoSelfieFileInput.addEventListener("change", () => {
@@ -3426,7 +4301,8 @@ function initVtoFlow() {
     const step = SKIN_DIAG_QUIZ_STEPS[skinDiagQuizStep];
     if (!step?.showPreferNot) return;
     skinDiagQuizAnswers.ageBand = "prefer_not";
-    renderSkinDiagQuestionnaireStep();
+    el.vtoSkinQuizPreferNot.classList.add("vto-skin-quiz__prefer-not--on");
+    skinDiagQuestionnaireAdvanceFromCurrentStep();
   });
 
   el.vtoSkinDiagResultsClose?.addEventListener("click", () => finishSkinDiagFlowToChat());
@@ -3504,3 +4380,5 @@ initComposer();
 initProductDetail();
 initVtoFlow();
 initNavChat();
+
+syncVtoExperienceBrandUi();

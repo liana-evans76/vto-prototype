@@ -139,18 +139,39 @@
                 <div class="product-detail__info">
                   <p class="product-detail__brand" id="productDetailBrand"></p>
                   <h2 class="product-detail__title" id="productDetailTitle"></h2>
-                  <div class="product-detail__badges" id="productDetailBadges"></div>
                   <div class="product-detail__tags" id="productDetailTags"></div>
-                  <p class="product-detail__shade">
+                  <p class="product-detail__shade" id="productDetailShadeRow">
                     <span class="product-detail__shade-dot" id="productDetailShadeDot"></span>
                     <span id="productDetailShadeLabel"></span>
                   </p>
                   <div class="product-detail__meta" id="productDetailMeta"></div>
                   <p class="product-detail__description" id="productDetailDescription"></p>
                 </div>
+                <section
+                  class="product-detail__unpack"
+                  id="productDetailUnpack"
+                  hidden
+                  aria-labelledby="productDetailUnpackHeading"
+                >
+                  <h3 class="product-detail__unpack-title" id="productDetailUnpackHeading">Unpack my match</h3>
+                  <p class="product-detail__unpack-lede" id="productDetailUnpackLede"></p>
+                  <ul class="product-detail__unpack-list" id="productDetailUnpackList"></ul>
+                </section>
                 <section class="product-detail__ingredients" aria-labelledby="productDetailIngredientsHeading">
                   <h3 class="product-detail__ingredients-title" id="productDetailIngredientsHeading">Ingredients</h3>
                   <p class="product-detail__ingredients-body" id="productDetailIngredientsBody"></p>
+                </section>
+                <section
+                  class="product-detail__alternates"
+                  id="productDetailAlternates"
+                  hidden
+                  aria-labelledby="productDetailAlternatesHeading"
+                >
+                  <h3 class="product-detail__alternates-title" id="productDetailAlternatesHeading">Alternate products</h3>
+                  <p class="product-detail__alternates-sub" id="productDetailAlternatesSub"></p>
+                  <div class="product-detail__alternates-strip-wrap">
+                    <div class="product-detail__alternates-strip" id="productDetailAlternatesStrip" role="list"></div>
+                  </div>
                 </section>
               </div>
               <footer class="product-detail__footer">
@@ -210,56 +231,6 @@
               </footer>
             </div>
 
-            <div id="vtoModePanel" class="vto-flow__panel vto-flow__panel--mode" hidden>
-              <header class="vto-mode__navbar">
-                <button type="button" class="vto-mode__nav-btn" id="vtoModeClose" aria-label="Close">
-                  <svg class="lucide lucide--14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="m6 6 12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                </button>
-                <img
-                  class="vto-mode__brand-img"
-                  id="vtoModeBrand"
-                  src="assets/makeup-com-logo.png"
-                  alt="makeup.com by L'Oréal"
-                  decoding="async"
-                />
-                <button type="button" class="vto-mode__nav-btn" aria-label="History">
-                  <svg class="lucide lucide--18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M3 3v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M12 7v5l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                </button>
-              </header>
-              <div class="vto-flow__scroll vto-flow__scroll--mode">
-                <h2 class="vto-mode__title" id="vtoModeHeading">Select try-on mode</h2>
-                <p class="vto-mode__subtitle">
-                  Test products in real-time or use a selfie to see your products rendered on your image.
-                </p>
-                <div class="vto-mode__info" role="note">
-                  <span class="vto-mode__info-icon" aria-hidden="true">
-                    <svg class="lucide lucide--18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </span>
-                  <span class="vto-mode__info-text">We don't save your image.</span>
-                  <button type="button" class="vto-mode__info-link" id="vtoModePrivacyLearn">Learn more</button>
-                </div>
-              </div>
-              <footer class="vto-mode__footer">
-                <button type="button" class="vto-mode__btn vto-mode__btn--primary" id="vtoModeLive">Try-on live mode</button>
-                <button type="button" class="vto-mode__btn vto-mode__btn--secondary" id="vtoModeSelfie">Use a selfie</button>
-              </footer>
-            </div>
-
             <div id="vtoLiveStubPanel" class="vto-flow__panel vto-flow__panel--stub" hidden>
               <header class="vto-mode__navbar">
                 <button type="button" class="vto-mode__nav-btn" id="vtoLiveStubBack" aria-label="Back">
@@ -267,7 +238,10 @@
                     <path d="m15 18-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                 </button>
-                <img class="vto-mode__brand-img" src="assets/makeup-com-logo.png" alt="makeup.com by L'Oréal" decoding="async" />
+                <div class="vto-mode__brand" role="img" aria-label="makeup.com by L'Oréal">
+                  <div class="vto-mode__brand-name">makeup.com</div>
+                  <div class="vto-mode__brand-tag">BY L'OREAL</div>
+                </div>
                 <span class="vto-mode__nav-spacer" aria-hidden="true"></span>
               </header>
               <div class="vto-flow__scroll vto-flow__scroll--stub">
@@ -275,7 +249,7 @@
                 <p class="vto-mode__stub-copy">Live camera preview and try-on will continue here.</p>
               </div>
               <footer class="vto-mode__footer vto-mode__footer--single">
-                <button type="button" class="vto-mode__btn vto-mode__btn--primary" id="vtoLiveStubDone">Back to mode</button>
+                <button type="button" class="vto-mode__btn vto-mode__btn--primary" id="vtoLiveStubDone">Back</button>
               </footer>
             </div>
 
@@ -287,7 +261,10 @@
                     <path d="m6 6 12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                 </button>
-                <img class="vto-mode__brand-img" src="assets/makeup-com-logo.png" alt="makeup.com by L'Oréal" decoding="async" />
+                <div class="vto-mode__brand" role="img" aria-label="makeup.com by L'Oréal">
+                  <div class="vto-mode__brand-name">makeup.com</div>
+                  <div class="vto-mode__brand-tag">BY L'OREAL</div>
+                </div>
                 <button type="button" class="vto-mode__nav-btn" id="vtoSelfieStubInfo" aria-label="Information">
                   <svg class="lucide lucide--18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
@@ -370,9 +347,11 @@
                 </div>
               </div>
               <footer class="vto-mode__footer">
-                <button type="button" class="vto-mode__btn vto-mode__btn--primary" id="vtoSelfieTake">Take my selfie</button>
-                <button type="button" class="vto-mode__btn vto-mode__btn--secondary" id="vtoSelfieUpload">Upload a selfie</button>
-                <button type="button" class="vto-mode__btn vto-mode__btn--text" id="vtoSelfieStubDone">Back to mode</button>
+                <button type="button" class="vto-mode__btn vto-mode__btn--primary" id="vtoStubLiveMode">Live mode try-on</button>
+                <button type="button" class="vto-mode__btn vto-mode__btn--secondary" id="vtoSelfieTake">Take a selfie</button>
+                <button type="button" class="vto-mode__btn vto-mode__btn--secondary" id="vtoSelfieUploadPhoto" hidden>
+                  Upload a photo
+                </button>
               </footer>
             </div>
 
@@ -405,6 +384,27 @@
                     stroke-width="4"
                     stroke-linecap="round"
                   />
+                  <!-- Skin flow: left / right halves of the face oval (match ellipse above: cx160 cy200 rx118 ry158). -->
+                  <path
+                    id="vtoSelfieGuidePathLeft"
+                    class="vto-selfie-cam__guide-path vto-selfie-cam__guide-path--half"
+                    d="M 160 42 A 118 158 0 0 0 42 200 A 118 158 0 0 0 160 358"
+                    fill="none"
+                    stroke="#4ade80"
+                    stroke-width="4"
+                    stroke-linecap="round"
+                    aria-hidden="true"
+                  />
+                  <path
+                    id="vtoSelfieGuidePathRight"
+                    class="vto-selfie-cam__guide-path vto-selfie-cam__guide-path--half"
+                    d="M 160 42 A 118 158 0 0 1 278 200 A 118 158 0 0 1 160 358"
+                    fill="none"
+                    stroke="#4ade80"
+                    stroke-width="4"
+                    stroke-linecap="round"
+                    aria-hidden="true"
+                  />
                 </svg>
               </div>
               <div id="vtoSelfieGuidePill" class="vto-selfie-cam__pill" role="status" aria-live="polite"></div>
@@ -415,12 +415,10 @@
                     <path d="m6 6 12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                 </button>
-                <img
-                  class="vto-mode__brand-img vto-selfie-cam__brand"
-                  src="assets/makeup-com-logo.png"
-                  alt="makeup.com by L'Oréal"
-                  decoding="async"
-                />
+                <div class="vto-mode__brand vto-mode__brand--on-dark vto-selfie-cam__brand" role="img" aria-label="makeup.com by L'Oréal">
+                  <div class="vto-mode__brand-name">makeup.com</div>
+                  <div class="vto-mode__brand-tag">BY L'OREAL</div>
+                </div>
                 <button type="button" class="vto-mode__nav-btn vto-selfie-cam__nav-frost" id="vtoSelfieCameraInfo" aria-label="Information">
                   <svg class="lucide lucide--18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
@@ -458,7 +456,10 @@
                     <path d="m6 6 12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                 </button>
-                <img class="vto-mode__brand-img" src="assets/makeup-com-logo.png" alt="makeup.com by L'Oréal" decoding="async" />
+                <div class="vto-mode__brand" role="img" aria-label="makeup.com by L'Oréal">
+                  <div class="vto-mode__brand-name">makeup.com</div>
+                  <div class="vto-mode__brand-tag">BY L'OREAL</div>
+                </div>
                 <button type="button" class="vto-mode__nav-btn" id="vtoSelfieConfirmInfo" aria-label="Information">
                   <svg class="lucide lucide--18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
@@ -725,9 +726,15 @@
             </button>
             <button type="button" class="composer-app-menu__item composer-app-menu__item--vto" id="composerAppMenuVto" role="listitem">
               <span class="composer-app-menu__item-logo-wrap">
-                <img src="assets/vto-mirror.png" alt="" width="20" height="20" decoding="async" />
+                <img src="assets/makeup-tryon-header-icon.png" alt="" width="20" height="20" decoding="async" />
               </span>
               <span class="composer-app-menu__item-copy"><strong>Makeup Try-On Beauty Advisor</strong><small>Your personal AI beauty advisor powered by VTO</small></span>
+            </button>
+            <button type="button" class="composer-app-menu__item composer-app-menu__item--skin-diag" id="composerAppMenuSkinDiag" role="listitem">
+              <span class="composer-app-menu__item-logo-wrap">
+                <img src="assets/skin-diag-icon.png" alt="" width="20" height="20" decoding="async" />
+              </span>
+              <span class="composer-app-menu__item-copy"><strong>Skin Diag</strong><small>Get an AI-powered skin diagnosis flow</small></span>
             </button>
           </div>
         </section>
