@@ -1589,6 +1589,20 @@ function normalizeUserReply(text) {
     .trim();
 }
 
+/** Typed “where can I buy…” style asks while the full-screen VTO shell is open (handled before panels close). */
+function isWhereToBuyPurchaseIntent(text) {
+  const n = normalizeUserReply(text);
+  if (!n) return false;
+  if (/\b(where\s+can\s+i\s+buy|where\s+to\s+buy|where\s+do\s+i\s+buy|where\s+should\s+i\s+buy)\b/.test(n)) return true;
+  if (/\b(where\s+can\s+we\s+buy|where\s+to\s+get\s+it|where\s+to\s+get\s+this|where\s+to\s+get\s+that)\b/.test(n)) return true;
+  if (/\b(can\s+i\s+buy\s+(this|it|that|these)|how\s+can\s+i\s+buy|how\s+do\s+i\s+buy)\b/.test(n)) return true;
+  if (/\b(links?\s+to\s+buy|buy\s+links?|purchase\s+(this|it|that)|shop\s+for\s+(this|it|that))\b/.test(n)) return true;
+  if (/\b(where\s+is\s+it\s+sold|where\s+.*\s+sold|where\s+to\s+find\s+it|where\s+to\s+find\s+this)\b/.test(n)) return true;
+  if (/\b(stockists?|retailers?)\b.*\b(where|find|link|buy)\b|\b(where|find|links?)\b.*\b(stockists?|retailers?)\b/.test(n)) return true;
+  if (/\b(order\s+(this|it|that)|add\s+to\s+cart|checkout)\b/.test(n)) return true;
+  return false;
+}
+
 /**
  * @returns {'luxury'|'budget'|'ambiguous'|null}
  */
@@ -2204,6 +2218,17 @@ async function sendUserMessage(text, promptMeta) {
   const trimmed = text.trim();
   if (!trimmed) return;
   if (flow === "busy") return;
+
+  const vtoWhereBuyProduct =
+    !el.vtoFlow.hidden &&
+    !skinDiagFlowActive &&
+    !vtoSkinBrandExperienceActive &&
+    chatMode === "makeup" &&
+    isWhereToBuyPurchaseIntent(trimmed) &&
+    hasVtoProductContextForWhereBuy()
+      ? productForWhereToBuyFromDetail()
+      : null;
+
   closeVtoFlow();
   closeProductDetail();
   enterChatView();
@@ -2212,6 +2237,20 @@ async function sendUserMessage(text, promptMeta) {
   const myGen = chatGenerationEpoch;
 
   removeQuickReplies();
+
+  if (vtoWhereBuyProduct) {
+    appendUserBubble(trimmed);
+    el.input.value = "";
+    autosizeComposer();
+    flow = "busy";
+    updateComposerTextState();
+    await assistantThink();
+    if (myGen !== chatGenerationEpoch) return;
+    appendAssistantBlock(buildWhereToBuyMessageHtml(vtoWhereBuyProduct));
+    flow = "idle";
+    updateComposerTextState();
+    return;
+  }
 
   if (isNewRoutineShortcut(trimmed)) {
     appendUserBubble(trimmed);
@@ -2658,6 +2697,12 @@ function routinePickToWhereToBuyProduct(pick) {
   };
 }
 
+/** True when there is a concrete makeup product in context (not the generic {@link getVtoProduct} fallback with no selection). */
+function hasVtoProductContextForWhereBuy() {
+  if (vtoSelectedProductKey) return true;
+  return !!(el.vtoTryOnPanel && !el.vtoTryOnPanel.hidden);
+}
+
 /** Product row for the “Where to buy” chat message (matches detail sheet + active try-on shade when applicable). */
 function productForWhereToBuyFromDetail() {
   const pick = productDetailKind === "skin_routine" ? productDetailSkinRoutinePick : null;
@@ -2670,6 +2715,9 @@ function productForWhereToBuyFromDetail() {
   const shadesMatchProduct =
     tryOnOpen && !tryOnFromChatSingleProduct && cur && tryOnShadeContextKey && tryOnShadeContextKey === ctx;
   if (shadesMatchProduct) {
+    return { ...product, shadeLabel: cur.label, swatch: cur.hex };
+  }
+  if (tryOnOpen && tryOnFromChatSingleProduct && cur) {
     return { ...product, shadeLabel: cur.label, swatch: cur.hex };
   }
   return product;
