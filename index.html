@@ -2,43 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="#FFFFFF" />
     <title>ChatGPT — Makeup Try-On (Prototype)</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="device" aria-label="Mobile ChatGPT prototype">
+    <div class="device" aria-label="ChatGPT prototype">
       <div class="shell">
-        <header class="status" role="presentation">
-          <span class="status__time">9:41</span>
-          <span class="status__icons" aria-hidden="true">
-            <svg class="lucide lucide--16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2 20h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M7 20v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M12 20v-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M17 20V8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-            <svg class="lucide lucide--16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 20h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M2 8.82a15 15 0 0 1 20 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M5 12.859a10 10 0 0 1 14 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M8.5 16.429a5 5 0 0 1 7 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-            <svg class="lucide lucide--16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M10 10v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M14 10v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M22 14v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M6 10v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              <rect x="2" y="6" width="16" height="12" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </span>
-        </header>
-
         <nav class="nav" aria-label="Conversation">
           <div class="nav__leading">
             <button type="button" class="nav__btn" id="navMenuBtn" aria-label="Open menu — switch to makeup try-on chat">
@@ -336,8 +308,8 @@
                       </svg>
                     </span>
                     <div class="vto-selfie-intro__text">
-                      <p class="vto-selfie-intro__line">Camera access.</p>
-                      <p class="vto-selfie-intro__sub">Allow access on the next screen.</p>
+                      <p class="vto-selfie-intro__line">Camera permission.</p>
+                      <p class="vto-selfie-intro__sub">Your browser will ask before the camera turns on.</p>
                     </div>
                   </li>
                 </ul>
@@ -353,20 +325,6 @@
                   Upload a photo
                 </button>
               </footer>
-            </div>
-
-            <div id="vtoSelfiePermModal" class="vto-selfie-perm" hidden role="alertdialog" aria-modal="true" aria-labelledby="vtoSelfiePermTitle">
-              <div class="vto-selfie-perm__backdrop" id="vtoSelfiePermBackdrop"></div>
-              <div class="vto-selfie-perm__sheet">
-                <p class="vto-selfie-perm__title" id="vtoSelfiePermTitle">“makeup.com” would like to access your camera</p>
-                <p class="vto-selfie-perm__body">
-                  To scan your face and analyze your skin needs. Your photo won't be saved.
-                </p>
-                <div class="vto-selfie-perm__actions">
-                  <button type="button" class="vto-selfie-perm__btn vto-selfie-perm__btn--deny" id="vtoSelfiePermDeny">Don't Allow</button>
-                  <button type="button" class="vto-selfie-perm__btn vto-selfie-perm__btn--allow" id="vtoSelfiePermAllow">Allow</button>
-                </div>
-              </div>
             </div>
 
             <div id="vtoSelfieCameraPanel" class="vto-flow__panel vto-flow__panel--camera" hidden>
@@ -799,7 +757,6 @@
               </svg>
             </button>
           </div>
-          <div class="home-indicator" aria-hidden="true"></div>
         </footer>
 
       </div>

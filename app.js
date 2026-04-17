@@ -532,10 +532,6 @@ const el = {
   vtoTryOnMiniInfo: /** @type {HTMLButtonElement} */ (document.getElementById("vtoTryOnMiniInfo")),
   vtoTryOnModeToggle: /** @type {HTMLButtonElement} */ (document.getElementById("vtoTryOnModeToggle")),
   vtoTryOnAltLipOverlay: /** @type {HTMLElement | null} */ (document.getElementById("vtoTryOnAltLipOverlay")),
-  vtoSelfiePermModal: /** @type {HTMLElement} */ (document.getElementById("vtoSelfiePermModal")),
-  vtoSelfiePermBackdrop: /** @type {HTMLElement} */ (document.getElementById("vtoSelfiePermBackdrop")),
-  vtoSelfiePermDeny: /** @type {HTMLButtonElement} */ (document.getElementById("vtoSelfiePermDeny")),
-  vtoSelfiePermAllow: /** @type {HTMLButtonElement} */ (document.getElementById("vtoSelfiePermAllow")),
   vtoSelfieCameraPanel: /** @type {HTMLElement} */ (document.getElementById("vtoSelfieCameraPanel")),
   vtoSelfieVideo: /** @type {HTMLVideoElement} */ (document.getElementById("vtoSelfieVideo")),
   vtoSelfieGuidePill: /** @type {HTMLElement} */ (document.getElementById("vtoSelfieGuidePill")),
@@ -606,10 +602,6 @@ function syncVtoExperienceBrandUi() {
   document.querySelectorAll('.vto-mode__brand[role="img"]').forEach((node) => {
     node.setAttribute("aria-label", aria);
   });
-  const permTitle = document.getElementById("vtoSelfiePermTitle");
-  if (permTitle) {
-    permTitle.textContent = `“${name}” would like to access your camera`;
-  }
 }
 
 /** Step index within {@link SKIN_DIAG_QUIZ_STEPS} after selfie confirm (skin flow only). */
@@ -2074,7 +2066,6 @@ function chatbotTieredFollowUpHtml() {
 function prepareVtoShellVisible() {
   closeProductDetail();
   stopVtoCameraStream();
-  hideSelfiePermModal();
   hideVtoTryOnPanel();
   clearSkinDiagPostQuizTimer();
   hideSkinDiagLoadingPanel();
@@ -3216,7 +3207,6 @@ function showVtoTryOn() {
   if (!selfieSrc) return;
   if (!vtoSelfiePreviewUrl) vtoSelfiePreviewUrl = sessionPersistedSelfieUrl;
   stopVtoCameraStream();
-  hideSelfiePermModal();
   el.vtoTermsPanel.hidden = true;
   el.vtoLiveStubPanel.hidden = true;
   el.vtoSelfieStubPanel.hidden = true;
@@ -3398,16 +3388,6 @@ function stopVtoCameraStream() {
   resetSelfieGuidePath();
 }
 
-function hideSelfiePermModal() {
-  el.vtoSelfiePermModal.hidden = true;
-}
-
-function showSelfiePermModal() {
-  syncVtoExperienceBrandUi();
-  el.vtoSelfiePermModal.hidden = false;
-  requestAnimationFrame(() => el.vtoSelfiePermDeny.focus());
-}
-
 function showVtoSelfieCameraPanel() {
   hideVtoTryOnPanel();
   el.vtoTermsPanel.hidden = true;
@@ -3423,7 +3403,6 @@ function showVtoSelfieCameraPanel() {
 
 function retakeVtoSelfie() {
   stopVtoCameraStream();
-  hideSelfiePermModal();
   hideVtoTryOnPanel();
   teardownTryOnFaceLandmarker();
   tryOnResizeObserver?.disconnect();
@@ -3571,8 +3550,9 @@ function captureSelfieFrameFromVideo() {
   );
 }
 
-async function startSelfieCameraFromPermAllow() {
-  hideSelfiePermModal();
+/** Opens the camera panel and requests access via the browser’s native permission prompt (user gesture from “Take a selfie”). */
+async function startVtoSelfieCamera() {
+  syncVtoExperienceBrandUi();
   showVtoSelfieCameraPanel();
   el.vtoSelfieGuidePill.textContent = "Starting camera…";
 
@@ -3593,7 +3573,7 @@ async function startSelfieCameraFromPermAllow() {
     await el.vtoSelfieVideo.play();
     await waitForSelfieVideoSize();
     el.vtoSelfieGuidePill.textContent = "";
-    if (skinDiagFlowActive) {
+    if (skinDiagFlowActive || vtoSkinBrandExperienceActive) {
       await runSelfieCountdownOnly();
       await startSkinDiagHeadTurnPhases();
       startSelfieCaptureSequence({ skipCountdown: true });
@@ -3847,7 +3827,6 @@ function showSkinDiagResultsPanel(imageUrl) {
   mountSkinDiagResultsCards(imageUrl);
   applySkinDiagResultsZoom();
   stopVtoCameraStream();
-  hideSelfiePermModal();
   hideVtoTryOnPanel();
   el.vtoTermsPanel.hidden = true;
   el.vtoLiveStubPanel.hidden = true;
@@ -3871,7 +3850,6 @@ function startSkinDiagPostQuizLoading(imageUrl) {
   clearSkinDiagPostQuizTimer();
   hideSkinDiagResultsPanel();
   stopVtoCameraStream();
-  hideSelfiePermModal();
   hideVtoTryOnPanel();
   el.vtoTermsPanel.hidden = true;
   el.vtoLiveStubPanel.hidden = true;
@@ -4002,7 +3980,6 @@ function renderSkinDiagQuestionnaireStep() {
 
 function showSkinDiagQuestionnairePanel() {
   stopVtoCameraStream();
-  hideSelfiePermModal();
   hideVtoTryOnPanel();
   hideSkinDiagLoadingPanel();
   hideSkinDiagResultsPanel();
@@ -4039,7 +4016,6 @@ function skinDiagQuestionnaireContinue() {
 
 function showVtoTermsOnly() {
   stopVtoCameraStream();
-  hideSelfiePermModal();
   hideVtoTryOnPanel();
   clearSkinDiagPostQuizTimer();
   hideSkinDiagLoadingPanel();
@@ -4054,7 +4030,6 @@ function showVtoTermsOnly() {
 
 function showVtoLiveStub() {
   stopVtoCameraStream();
-  hideSelfiePermModal();
   hideVtoTryOnPanel();
   clearSkinDiagPostQuizTimer();
   hideSkinDiagLoadingPanel();
@@ -4069,7 +4044,6 @@ function showVtoLiveStub() {
 
 function showVtoSelfieStub() {
   stopVtoCameraStream();
-  hideSelfiePermModal();
   hideVtoTryOnPanel();
   clearSkinDiagPostQuizTimer();
   hideSkinDiagLoadingPanel();
@@ -4085,7 +4059,6 @@ function showVtoSelfieStub() {
 
 function showVtoSelfieConfirm() {
   stopVtoCameraStream();
-  hideSelfiePermModal();
   hideVtoTryOnPanel();
   clearSkinDiagPostQuizTimer();
   hideSkinDiagLoadingPanel();
@@ -4221,25 +4194,11 @@ function initVtoFlow() {
   });
 
   el.vtoSelfieTake.addEventListener("click", () => {
-    showSelfiePermModal();
+    void startVtoSelfieCamera();
   });
 
   el.vtoSelfieUploadPhoto?.addEventListener("click", () => {
     el.vtoSelfieFileInput?.click();
-  });
-
-  el.vtoSelfiePermDeny.addEventListener("click", () => {
-    hideSelfiePermModal();
-    requestAnimationFrame(() => el.vtoSelfieTake.focus());
-  });
-
-  el.vtoSelfiePermBackdrop.addEventListener("click", () => {
-    hideSelfiePermModal();
-    requestAnimationFrame(() => el.vtoSelfieTake.focus());
-  });
-
-  el.vtoSelfiePermAllow.addEventListener("click", () => {
-    void startSelfieCameraFromPermAllow();
   });
 
   el.vtoSelfieCameraClose.addEventListener("click", () => {
@@ -4321,12 +4280,6 @@ function initVtoFlow() {
 
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape" || el.vtoFlow.hidden) return;
-    if (!el.vtoSelfiePermModal.hidden) {
-      e.preventDefault();
-      hideSelfiePermModal();
-      requestAnimationFrame(() => el.vtoSelfieTake.focus());
-      return;
-    }
     if (!el.vtoSelfieCameraPanel.hidden) {
       e.preventDefault();
       clearVtoCaptureTimers();
