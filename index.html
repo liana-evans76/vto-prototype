@@ -321,6 +321,7 @@
               <footer class="vto-mode__footer">
                 <button type="button" class="vto-mode__btn vto-mode__btn--primary" id="vtoStubLiveMode">Live mode try-on</button>
                 <button type="button" class="vto-mode__btn vto-mode__btn--secondary" id="vtoSelfieTake">Take a selfie</button>
+                <button type="button" class="vto-mode__btn-text" id="vtoSelfieUploadFallback">Upload a photo instead</button>
               </footer>
             </div>
 
@@ -393,6 +394,7 @@
             </div>
 
             <canvas id="vtoSelfieCaptureCanvas" class="vto-hidden-canvas" width="1" height="1" aria-hidden="true"></canvas>
+            <input id="vtoSelfieUploadInput" class="vto-hidden-canvas" type="file" accept="image/*" />
 
             <div
               id="vtoSelfieConfirmPanel"

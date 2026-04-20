@@ -542,6 +542,8 @@ const el = {
   vtoSelfieCameraInfo: /** @type {HTMLButtonElement} */ (document.getElementById("vtoSelfieCameraInfo")),
   vtoSelfieCaptureComplete: /** @type {HTMLElement} */ (document.getElementById("vtoSelfieCaptureComplete")),
   vtoSelfieCaptureCanvas: /** @type {HTMLCanvasElement} */ (document.getElementById("vtoSelfieCaptureCanvas")),
+  vtoSelfieUploadFallback: /** @type {HTMLButtonElement | null} */ (document.getElementById("vtoSelfieUploadFallback")),
+  vtoSelfieUploadInput: /** @type {HTMLInputElement | null} */ (document.getElementById("vtoSelfieUploadInput")),
   vtoSelfieStubClose: /** @type {HTMLButtonElement} */ (document.getElementById("vtoSelfieStubClose")),
   vtoSelfieStubInfo: /** @type {HTMLButtonElement} */ (document.getElementById("vtoSelfieStubInfo")),
   vtoSelfieStubPrivacyLearn: /** @type {HTMLButtonElement} */ (document.getElementById("vtoSelfieStubPrivacyLearn")),
@@ -3984,6 +3986,35 @@ async function startVtoSelfieCamera() {
   }
 }
 
+/** @param {File} file */
+async function handleUploadedSelfieFile(file) {
+  const objectUrl = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    img.decoding = "async";
+    await new Promise((resolve, reject) => {
+      img.onload = () => resolve(undefined);
+      img.onerror = () => reject(new Error("image-load-failed"));
+      img.src = objectUrl;
+    });
+  } catch {
+    URL.revokeObjectURL(objectUrl);
+    window.alert("That file could not be read as an image. Please choose another photo.");
+    return;
+  }
+  stopVtoCameraStream();
+  revokeVtoSelfiePreview();
+  if (sessionPersistedSelfieUrl) {
+    URL.revokeObjectURL(sessionPersistedSelfieUrl);
+    sessionPersistedSelfieUrl = null;
+  }
+  vtoSelfiePreviewUrl = objectUrl;
+  el.vtoSelfiePreviewImg.src = vtoSelfiePreviewUrl;
+  el.vtoSelfiePreviewImg.alt = "Uploaded selfie preview";
+  showVtoSelfieConfirm();
+  requestAnimationFrame(() => el.vtoSelfieUseImage.focus());
+}
+
 /** @param {boolean} active */
 function setVtoComposerChrome(active) {
   const root = el.composerRoot;
@@ -4673,6 +4704,21 @@ function initVtoFlow() {
 
   el.vtoSelfieTake.addEventListener("click", () => {
     void startVtoSelfieCamera();
+  });
+
+  el.vtoSelfieUploadFallback?.addEventListener("click", () => {
+    const input = el.vtoSelfieUploadInput;
+    if (!input) return;
+    input.value = "";
+    input.click();
+  });
+
+  el.vtoSelfieUploadInput?.addEventListener("change", (e) => {
+    const input = /** @type {HTMLInputElement} */ (e.currentTarget);
+    const file = input.files?.[0];
+    if (!file) return;
+    void handleUploadedSelfieFile(file);
+    input.value = "";
   });
 
   el.vtoSelfieCameraClose.addEventListener("click", () => {

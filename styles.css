@@ -2496,6 +2496,27 @@ textarea {
   -webkit-tap-highlight-color: transparent;
 }
 
+.vto-mode__btn-text {
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 2px auto 0;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #5d5d5d;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.vto-mode__btn-text:focus-visible {
+  outline: 2px solid var(--sd-detail-primary);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
 /* Skin diagnosis selfie: live try-on is not offered — hide even if [hidden] loses to .vto-mode__btn { display: inline-flex } */
 .vto-flow__panel--skin-diag-flow #vtoStubLiveMode {
   display: none !important;
