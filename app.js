@@ -520,6 +520,7 @@ const el = {
   vtoTryOnAfterWrap: /** @type {HTMLElement} */ (document.getElementById("vtoTryOnAfterWrap")),
   vtoTryOnAfterBase: /** @type {HTMLElement} */ (document.getElementById("vtoTryOnAfterBase")),
   vtoTryOnLipCanvas: /** @type {HTMLCanvasElement} */ (document.getElementById("vtoTryOnLipCanvas")),
+  vtoTryOnViewport: /** @type {HTMLElement} */ (document.getElementById("vtoTryOnViewport")),
   vtoTryOnSliderTrack: /** @type {HTMLElement} */ (document.getElementById("vtoTryOnSliderTrack")),
   vtoTryOnSliderKnob: /** @type {HTMLButtonElement} */ (document.getElementById("vtoTryOnSliderKnob")),
   vtoTryOnMiniTitle: /** @type {HTMLElement} */ (document.getElementById("vtoTryOnMiniTitle")),
@@ -960,6 +961,9 @@ const TRYON_OUTER_MOUTH_IDX = [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291, 
 /** Alternate compare images for VTO before/after toggle. */
 const TRYON_REFERENCE_BEFORE_IMAGE = "assets/tryon-group1-before.png";
 const TRYON_REFERENCE_AFTER_IMAGE = "assets/tryon-group2-after.png";
+
+/** Sample face used when the user types the “VTO” chat shortcut (same asset as reference model). */
+const VTO_CHAT_SHORTCUT_SELFIE = "assets/tryon-reference-model.png";
 
 function scrollMainToBottom() {
   const sc = el.mainScroll;
@@ -1700,6 +1704,45 @@ function isNewRoutineShortcut(text) {
   return /\bnew\s+routine\b/i.test(normalizeUserReply(text));
 }
 
+/** Typed “VTO” alone opens full try-on with the chat shortcut placeholder face. */
+function isVtoChatShortcut(text) {
+  return normalizeUserReply(text) === "vto";
+}
+
+function vtoChatShortcutAssistantHtml() {
+  return `<div class="assistant-text">
+    <p style="margin:0 0 10px">Opening <strong>Virtual Try-On</strong> with the sample photo—use shades, the before/after slider, and the view toggle as usual.</p>
+    <p style="margin:0">Say <strong>VTO</strong> again anytime to jump back here with the same demo face.</p>
+  </div>`;
+}
+
+/** Clears persisted session selfie when it is a blob URL (before replacing with an asset path). */
+function releasePersistedSelfieBlobIfAny() {
+  const u = sessionPersistedSelfieUrl;
+  if (u && u.startsWith("blob:")) {
+    URL.revokeObjectURL(u);
+  }
+  sessionPersistedSelfieUrl = null;
+}
+
+/** Opens the full-screen try-on panel from chat using {@link VTO_CHAT_SHORTCUT_SELFIE}. */
+function launchVtoTryOnFromChatShortcut() {
+  releasePersistedSelfieBlobIfAny();
+  revokeVtoSelfiePreview();
+  sessionPersistedSelfieUrl = VTO_CHAT_SHORTCUT_SELFIE;
+  vtoSelfiePreviewUrl = null;
+  tryOnFromChatSingleProduct = false;
+  skinDiagFlowActive = false;
+  vtoSkinBrandExperienceActive = false;
+  applySelfieStubSkinDiagUi(false);
+  if (!vtoSelectedProductKey) {
+    vtoSelectedProductKey = { tier: "luxury", index: 0, catalog: "lips" };
+  }
+  tryOnUseReferenceModel = false;
+  prepareVtoShellVisible();
+  showVtoTryOn();
+}
+
 function budgetTierClarifyHtml() {
   return `<div class="assistant-text">
     <p style="margin:0 0 12px">I am not quite sure which lane you want yet—and that is completely fine.</p>
@@ -2241,6 +2284,34 @@ async function sendUserMessage(text, promptMeta) {
     appendAssistantBlock(buildWhereToBuyMessageHtml(vtoWhereBuyProduct));
     flow = "idle";
     updateComposerTextState();
+    return;
+  }
+
+  if (isVtoChatShortcut(trimmed)) {
+    appendUserBubble(trimmed);
+    el.input.value = "";
+    autosizeComposer();
+    flow = "busy";
+    updateComposerTextState();
+    chatAwaitingTryOnConfirm = false;
+    chatAwaitingSkinDiagConfirm = false;
+    chatAwaitingBudgetTierReply = false;
+    chatAwaitingSkinRoutineChoice = false;
+    chatSkinRoutineConcernId = null;
+    if (chatMode !== "makeup") {
+      chatMode = "makeup";
+      updateEntryChromeForChatMode();
+    }
+    if (composerSelectedApp === "skin_diag") {
+      composerSelectedApp = null;
+      syncComposerAppPill();
+    }
+    await assistantThink();
+    if (myGen !== chatGenerationEpoch) return;
+    appendAssistantBlock(vtoChatShortcutAssistantHtml());
+    flow = "idle";
+    updateComposerTextState();
+    launchVtoTryOnFromChatShortcut();
     return;
   }
 
@@ -3262,7 +3333,10 @@ function setTryOnReferenceMode(useReference) {
 /** @param {number} pct 0–100 from left */
 function setTryOnSplit(pct) {
   const p = Math.min(100, Math.max(4, pct));
-  el.vtoTryOnViewport.style.setProperty("--vto-split", String(p));
+  const s = String(p);
+  el.vtoTryOnViewport.style.setProperty("--vto-split", s);
+  const stack = el.vtoTryOnSliderKnob?.closest(".vto-tryon__after-stack");
+  if (stack) stack.style.setProperty("--vto-split", s);
 }
 
 function initTryOnSlider() {
@@ -3271,6 +3345,7 @@ function initTryOnSlider() {
   const { signal } = tryOnSliderAborter;
   const vp = el.vtoTryOnViewport;
   const knob = el.vtoTryOnSliderKnob;
+  const scrubRoot = /** @type {HTMLElement} */ (knob.closest(".vto-tryon__after-stack") || vp);
 
   /** @type {number | null} */
   let scrubPointerId = null;
@@ -3278,14 +3353,23 @@ function initTryOnSlider() {
   let scrubMouse = false;
 
   const onPointer = (clientX) => {
-    const r = vp.getBoundingClientRect();
+    const r = scrubRoot.getBoundingClientRect();
     if (r.width <= 0) return;
     const x = Math.max(0, Math.min(r.width, clientX - r.left));
     setTryOnSplit((x / r.width) * 100);
   };
 
   const stopScrub = (e) => {
-    if (scrubPointerId !== null && e.pointerId === scrubPointerId) scrubPointerId = null;
+    if (scrubPointerId !== null && e.pointerId === scrubPointerId) {
+      try {
+        if (typeof vp.hasPointerCapture === "function" && vp.hasPointerCapture(e.pointerId)) {
+          vp.releasePointerCapture(e.pointerId);
+        }
+      } catch {
+        //
+      }
+      scrubPointerId = null;
+    }
   };
 
   const onWindowMove = (e) => {
@@ -3311,6 +3395,14 @@ function initTryOnSlider() {
   window.addEventListener("mouseup", stopMouseScrub, { signal, capture: true });
 
   vp.addEventListener(
+    "lostpointercapture",
+    (e) => {
+      if (scrubPointerId !== null && e.pointerId === scrubPointerId) scrubPointerId = null;
+    },
+    { signal }
+  );
+
+  vp.addEventListener(
     "pointerdown",
     (e) => {
       if (e.pointerType === "mouse" && e.button !== 0) return;
@@ -3319,6 +3411,11 @@ function initTryOnSlider() {
       scrubPointerId = e.pointerId;
       e.preventDefault();
       onPointer(e.clientX);
+      try {
+        vp.setPointerCapture(e.pointerId);
+      } catch {
+        //
+      }
     },
     { signal }
   );
@@ -3345,6 +3442,11 @@ function initTryOnSlider() {
       e.preventDefault();
       scrubPointerId = e.pointerId;
       onPointer(e.clientX);
+      try {
+        vp.setPointerCapture(e.pointerId);
+      } catch {
+        //
+      }
     },
     { signal }
   );

@@ -1083,6 +1083,10 @@ body {
   display: block;
 }
 
+.product-card[data-brand="maybelline"] .product-card__media {
+  background: #fff;
+}
+
 .product-card[data-brand="maybelline"] .product-card__photo {
   object-fit: contain;
   object-position: center;
@@ -1649,6 +1653,10 @@ textarea {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.product-detail__slide[data-brand="maybelline"] {
+  background: #fff;
 }
 
 .product-detail__slide[data-brand="maybelline"] .product-detail__slide-photo {
@@ -2257,6 +2265,11 @@ textarea {
   object-fit: contain;
 }
 
+/* White mat behind MNY packshots when object-fit: contain leaves side/top/bottom gaps (not selfie-under composite). */
+.vto-tryon__mini-thumb:has(.vto-tryon__mini-photo[src*="mny-"]):not(.vto-tryon__mini-thumb--selfie-under) {
+  background-color: #fff;
+}
+
 .vto-tryon__mini-thumb--selfie-under {
   background-size: cover;
   background-position: center;
@@ -2371,18 +2384,6 @@ textarea {
 
 .vto-tryon__shade-btn.is-selected:focus-visible {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35), inset 0 0 0 3px rgba(59, 130, 246, 0.85), inset 0 0 0 5px #fff;
-}
-
-.vto-file-input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
 }
 
 .vto-flow__scroll--confirm {

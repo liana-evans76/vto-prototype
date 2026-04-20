@@ -321,9 +321,6 @@
               <footer class="vto-mode__footer">
                 <button type="button" class="vto-mode__btn vto-mode__btn--primary" id="vtoStubLiveMode">Live mode try-on</button>
                 <button type="button" class="vto-mode__btn vto-mode__btn--secondary" id="vtoSelfieTake">Take a selfie</button>
-                <button type="button" class="vto-mode__btn vto-mode__btn--secondary" id="vtoSelfieUploadPhoto" hidden>
-                  Upload a photo
-                </button>
               </footer>
             </div>
 
@@ -397,8 +394,6 @@
 
             <canvas id="vtoSelfieCaptureCanvas" class="vto-hidden-canvas" width="1" height="1" aria-hidden="true"></canvas>
 
-            <input type="file" id="vtoSelfieFileInput" class="vto-file-input" accept="image/*" tabindex="-1" aria-hidden="true" />
-
             <div
               id="vtoSelfieConfirmPanel"
               class="vto-flow__panel vto-flow__panel--confirm"
@@ -427,7 +422,7 @@
                 </button>
               </header>
               <div class="vto-flow__scroll vto-flow__scroll--confirm">
-                <h2 class="vto-mode__title" id="vtoSelfieConfirmHeading">Confirm selfie upload</h2>
+                <h2 class="vto-mode__title" id="vtoSelfieConfirmHeading">Confirm your selfie</h2>
                 <div class="vto-selfie-confirm__media-wrap">
                   <img id="vtoSelfiePreviewImg" class="vto-selfie-confirm__img" alt="" width="345" height="420" decoding="async" />
                 </div>
