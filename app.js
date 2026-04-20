@@ -3132,37 +3132,49 @@ function hexToRgb(hex) {
   return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
 }
 
-function nudgeHexColor(hex, step) {
-  const rgb = hexToRgb(hex);
-  if (!rgb) return "#c98b93";
-  const r = Math.min(255, rgb.r + step);
-  const g = Math.max(0, rgb.g - Math.round(step / 3));
-  const b = Math.max(0, rgb.b - Math.round(step / 2));
-  return `#${[r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("")}`;
+/** @param {{r:number,g:number,b:number}} rgb */
+function rgbToHex(rgb) {
+  return `#${[rgb.r, rgb.g, rgb.b]
+    .map((x) => Math.max(0, Math.min(255, Math.round(x))).toString(16).padStart(2, "0"))
+    .join("")}`;
+}
+
+/**
+ * Mixes two hex colors by `t` (0 keeps `a`, 1 keeps `b`).
+ * @param {string} a
+ * @param {string} b
+ * @param {number} t
+ */
+function mixHex(a, b, t) {
+  const ca = hexToRgb(a);
+  const cb = hexToRgb(b);
+  if (!ca || !cb) return ca ? rgbToHex(ca) : "#b97984";
+  const clamped = Math.max(0, Math.min(1, t));
+  return rgbToHex({
+    r: ca.r + (cb.r - ca.r) * clamped,
+    g: ca.g + (cb.g - ca.g) * clamped,
+    b: ca.b + (cb.b - ca.b) * clamped,
+  });
 }
 
 /** @param {typeof PRODUCTS.luxury[0]} p */
 function buildTryOnShades(p) {
-  /** @type {{ hex: string; label: string }[]} */
-  const list = [];
-  list.push({ hex: p.swatch, label: p.shadeLabel });
-  for (const tag of p.tags) {
-    if (!tag.dot) continue;
-    if (list.some((x) => x.hex.toLowerCase() === tag.dot.toLowerCase())) continue;
-    list.push({ hex: tag.dot, label: tag.label });
-  }
-  let k = 0;
-  while (list.length < 16) {
-    const prev = list[k % list.length].hex;
-    k += 1;
-    const hex = nudgeHexColor(prev, 5 + k * 4 + (k % 3) * 7);
-    if (list.some((x) => x.hex.toLowerCase() === hex.toLowerCase())) {
-      list.push({ hex: nudgeHexColor(prev, 11 + k * 13), label: `Shade ${list.length + 1}` });
-    } else {
-      list.push({ hex, label: `Shade ${list.length + 1}` });
-    }
-  }
-  return list.slice(0, 16);
+  // Keep the palette intentionally muted (dusty rose / mauve family) to match the calmer carousel treatment.
+  const base = mixHex(p.swatch, "#b97a85", 0.2);
+  const tones = [
+    { hex: base, label: p.shadeLabel },
+    { hex: mixHex(base, "#d9919a", 0.55), label: "Soft rose" },
+    { hex: mixHex(base, "#a86a74", 0.3), label: "Dusty mauve" },
+    { hex: mixHex(base, "#c1867f", 0.4), label: "Muted berry" },
+    { hex: mixHex(base, "#d79f90", 0.52), label: "Warm nude rose" },
+    { hex: mixHex(base, "#945f8f", 0.38), label: "Muted plum" },
+    { hex: mixHex(base, "#c57f8d", 0.47), label: "Rosewood" },
+    { hex: mixHex(base, "#b47883", 0.36), label: "Tea rose" },
+    { hex: mixHex(base, "#d0a29b", 0.58), label: "Blush nude" },
+    { hex: mixHex(base, "#8e5f78", 0.34), label: "Soft wine" },
+    { hex: mixHex(base, "#c38d88", 0.43), label: "Warm mauve" },
+  ];
+  return tones;
 }
 
 function teardownTryOnFaceLandmarker() {
@@ -4469,7 +4481,7 @@ function renderSkinDiagQuestionnaireStep() {
       if (step.showPreferNot) {
         el.vtoSkinQuizPreferNot.classList.remove("vto-skin-quiz__prefer-not--on");
       }
-      skinDiagQuestionnaireAdvanceFromCurrentStep();
+      renderSkinDiagQuestionnaireStep();
     });
     el.vtoSkinQuizOptions.append(btn);
   }
@@ -4765,7 +4777,7 @@ function initVtoFlow() {
     if (!step?.showPreferNot) return;
     skinDiagQuizAnswers.ageBand = "prefer_not";
     el.vtoSkinQuizPreferNot.classList.add("vto-skin-quiz__prefer-not--on");
-    skinDiagQuestionnaireAdvanceFromCurrentStep();
+    renderSkinDiagQuestionnaireStep();
   });
 
   el.vtoSkinDiagResultsClose?.addEventListener("click", () => finishSkinDiagFlowToChat());
