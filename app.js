@@ -890,6 +890,9 @@ const skinDiagPostQuizTimers = /** @type {number[]} */ ([]);
 /** @type {string | null} */
 let skinDiagResultsSelectedId = null;
 
+/** Photo URL for the last skin diagnosis results (mini peek in chat). */
+let skinDiagResultsPeekUrl = /** @type {string | null} */ (null);
+
 /** Bumped to cancel in-flight assistant “generation” (typing + follow-up). */
 let chatGenerationEpoch = 0;
 let skinRoutineFallbackImageUrl = /** @type {string | null} */ (null);
@@ -1074,6 +1077,8 @@ function showSkinDiagSelfieEntry() {
 
 function resetSkinDiagSessionFlags() {
   chatPreferredTier = null;
+  chatLastProductCarouselCatalog = null;
+  skinDiagResultsPeekUrl = null;
   chatPendingCarousel = null;
   chatAwaitingBudgetTierReply = false;
   chatAwaitingTryOnConfirm = false;
@@ -1134,6 +1139,7 @@ function switchToMakeupChat() {
 }
 
 function launchSkinDiagAfterConfirm() {
+  skinDiagResultsPeekUrl = null;
   skinDiagFlowActive = true;
   vtoSkinBrandExperienceActive = true;
   syncVtoExperienceBrandUi();
@@ -1611,13 +1617,88 @@ function parseBudgetTierFromUserText(text) {
   const luxuryRe =
     /\b(luxury|luxe|premium|splurge|high[\s-]end|prestige|designer|department\s+store|treat\s*myself|investment\s+pieces?|ysl|y\s*s\s*l|saint\s+laurent|splurging)\b/i;
   const budgetRe =
-    /\b(budget(?:[\s-]friendly)?|drugstore|affordable|inexpensive|cheaper|cheapest|save\s+money|save\s+a\s+bit|lower\s*prices?|value\s*picks?|mass\s*market|drug\s+store|wallet[\s-]?friendly)\b/i;
+    /\b(budget(?:[\s-]friendly)?|drugstore|affordable|inexpensive|cheaper|cheapest|save\s+money|save\s+a\s+bit|lower\s*prices?|value\s*picks?|mass\s*market|drug\s+store|wallet[\s-]?friendly|mny|maybelline)\b/i;
   const hasL = luxuryRe.test(n);
   const hasB = budgetRe.test(n);
   if (hasL && hasB) return "ambiguous";
   if (hasL) return "luxury";
   if (hasB) return "budget";
   return null;
+}
+
+/**
+ * After a tiered carousel, detect a request to browse the *other* price lane (many phrasings).
+ * @param {'luxury'|'budget'} currentTier
+ * @returns {'luxury'|'budget'|null}
+ */
+function parseOppositeTierCarouselIntent(text, currentTier) {
+  const n = normalizeUserReply(text);
+  if (!n) return null;
+
+  const explicit = parseBudgetTierFromUserText(text);
+  if (explicit === "ambiguous") return null;
+  if (explicit === "luxury" && currentTier === "budget") return "luxury";
+  if (explicit === "budget" && currentTier === "luxury") return "budget";
+  if (explicit !== null) return null;
+
+  const wantsBrowse =
+    /\b(show|see|want|looking\s+for|give\s+me|pull\s+up|load|switch|try|what\s+about|how\s+about|can\s+i|could\s+i|may\s+i|let'?s\s+see|hit\s+me\s+with|bring\s+out|surface|more)\b/i.test(
+      n,
+    );
+  if (!wantsBrowse) return null;
+
+  const otherLane =
+    /\b(the\s+)?other\s+(category|lane|line|side|price\s*point|price\s*range|tier|options?|picks?|ones?|group|kind)\b/i.test(n) ||
+    /\b(show\s+me\s+)?the\s+other\b/i.test(n) ||
+    /\b(opposite\s+((price|price\s*range)|lane|end|side|category))\b/i.test(n) ||
+    /\b(different\s+(lane|tier|price\s*point|range|brands?))\b/i.test(n) ||
+    /\b(not\s+these|something\s+different|(switch|move)\s+(lanes?|tiers?))\b/i.test(n) ||
+    /\b(the\s+)?other\s+end\b/i.test(n);
+
+  if (otherLane) return currentTier === "luxury" ? "budget" : "luxury";
+
+  return null;
+}
+
+/** Short line after product carousels inviting the opposite lane. */
+function oppositeLaneInviteHtml(tierShown, catalog) {
+  const isLux = tierShown === "luxury";
+  if (catalog === "foundation") {
+    const invite = isLux
+      ? "If you like, I can also pull a few <strong>budget-friendly</strong> foundation matches—say <strong>“show me budget foundations”</strong>, <strong>“drugstore options,”</strong> or ask for the <strong>other price range</strong>."
+      : "If you like, I can also show you some <strong>luxury foundation</strong> ideas—say <strong>“luxury picks,”</strong> <strong>“high-end lane,”</strong> or ask for the <strong>other price range</strong>.";
+    return `<p style="margin:12px 0 0">${invite}</p>`;
+  }
+  const invite = isLux
+    ? "If you like, I can show you some <strong>budget-friendly</strong> lip options as well—think <strong>drugstore-friendly</strong> picks. Try <strong>“budget ones,”</strong> <strong>“Maybelline,”</strong> or <strong>“the other lane.”</strong>"
+    : "If you like, I can show you some more <strong>luxury lip</strong> options as well—premium finishes in the lane you have not browsed yet. Try <strong>“luxury picks,”</strong> <strong>“luxe ones,”</strong> or <strong>“the other lane.”</strong>";
+  return `<p style="margin:12px 0 0">${invite}</p>`;
+}
+
+/**
+ * @param {'luxury'|'budget'} tier
+ * @param {{ switched?: boolean }} [opts]
+ */
+function lipResultsCopyForCarousel(tier, opts = {}) {
+  if (!opts.switched) return resultsCopy(labelForTier(tier));
+  const isLux = tier === "luxury";
+  return `
+    <p style="margin:0 0 10px">Here ${isLux ? "are a few <strong>luxury</strong> lip ideas" : "are some <strong>budget-friendly</strong> lip picks"} in the same vibe—pulled from the <strong>${isLux ? "luxe" : "value"}</strong> lane you asked for. <span aria-hidden="true">💄</span></p>
+    <p style="margin:0">Tap <strong>Virtual Try-On</strong> on a card to compare finishes and undertones live.</p>
+  `;
+}
+
+/**
+ * @param {'luxury'|'budget'} tier
+ * @param {{ switched?: boolean }} [opts]
+ */
+function foundationResultsCopyForCarousel(tier, opts = {}) {
+  if (!opts.switched) return foundationResultsCopy(tier);
+  const isLux = tier === "luxury";
+  return `
+    <p style="margin:0 0 10px">Here ${isLux ? "are some <strong>luxury</strong> foundation ideas" : "are a few <strong>budget-friendly</strong> foundation picks"}—switched to the <strong>${isLux ? "premium" : "drugstore-friendly"}</strong> lane you requested. <span aria-hidden="true">🧴</span></p>
+    <p style="margin:0">Tap <strong>Virtual Try-On</strong> on a card to keep comparing, or tell me your undertone, coverage, and finish and I will narrow this down further.</p>
+  `;
 }
 
 /**
@@ -1889,15 +1970,35 @@ function carouselDotsHTML(count, activeIndex) {
   return `<div class="carousel-dots" role="tablist" aria-label="Slides">${parts.join("")}</div>`;
 }
 
-/** @param {{ title: string, blurb: string } | null} concern */
-function skinRoutinePromptHtml(concern) {
+/** @param {string} imageUrl */
+function skinDiagResultsPeekInlineHtml(imageUrl) {
+  return `<button type="button" class="skin-diag-results-peek skin-diag-results-peek--inline" data-skin-diag-results-reopen aria-label="Open your skin diagnosis results">
+    <span class="skin-diag-results-peek__thumb-wrap">
+      <img class="skin-diag-results-peek__img" src="${escapeAttr(imageUrl)}" alt="" width="44" height="44" decoding="async" />
+    </span>
+    <span class="skin-diag-results-peek__copy">
+      <strong class="skin-diag-results-peek__title">Skin results</strong>
+      <span class="skin-diag-results-peek__sub">Tap to reopen</span>
+    </span>
+  </button>`;
+}
+
+/**
+ * @param {{ title: string, blurb: string } | null} concern
+ * @param {{ showSkinResultsShortcut?: boolean }} [opts] When true, appends reopen control (uses {@link skinDiagResultsPeekUrl}).
+ */
+function skinRoutinePromptHtml(concern, opts = {}) {
   const concernLabel = concern ? concern.title : "your skin concern";
   const concernBlurb = concern ? concern.blurb : "I can break this down in plain language and tailor the next steps.";
+  const peek =
+    opts.showSkinResultsShortcut && skinDiagResultsPeekUrl
+      ? skinDiagResultsPeekInlineHtml(skinDiagResultsPeekUrl)
+      : "";
   return `<div class="assistant-text">
     <p style="margin:0 0 10px"><strong>${escapeHtml(concernLabel)}</strong> is one of your highlighted areas.</p>
     <p style="margin:0 0 12px">${escapeHtml(concernBlurb)}</p>
     <p style="margin:0">Want a <strong>general routine</strong> (for example <strong>top concerns</strong>, <strong>all concerns</strong>, or <strong>general routine</strong>) across your scores, or a <strong>targeted routine</strong> focused on this one? Reply naturally—<strong>targeted</strong>, <strong>this concern only</strong>, or naming the concern works for targeted; <strong>general</strong> or <strong>all concerns</strong> keeps the full picture.</p>
-  </div>`;
+  </div>${peek}`;
 }
 
 function getSkinRoutineHeroImage() {
@@ -2116,14 +2217,14 @@ function buildProductCarouselBlock(tier, list, modelResponseInnerHtml, catalog) 
       </div>
       ${carouselDotsHTML(list.length, 0)}
     </div>
-    <div class="model-response">${modelResponseInnerHtml}</div>
+    <div class="model-response">${modelResponseInnerHtml}${oppositeLaneInviteHtml(tier, catalog)}</div>
     ${convActionsHTML()}
   `;
 }
 
-function buildCarousel(label) {
+function buildCarousel(label, switched = false) {
   const tier = tierKeyFromLabel(label);
-  return buildProductCarouselBlock(tier, PRODUCTS[tier], resultsCopy(label), "lips");
+  return buildProductCarouselBlock(tier, PRODUCTS[tier], lipResultsCopyForCarousel(tier, { switched }), "lips");
 }
 
 /** @param {'luxury'|'budget'} tier */
@@ -2138,9 +2239,14 @@ function foundationResultsCopy(tier) {
   `;
 }
 
-/** @param {'luxury'|'budget'} tier */
-function buildFoundationCarouselBlock(tier) {
-  return buildProductCarouselBlock(tier, FOUNDATION_PRODUCTS[tier], foundationResultsCopy(tier), "foundation");
+/** @param {'luxury'|'budget'} tier @param {boolean} [switched] */
+function buildFoundationCarouselBlock(tier, switched = false) {
+  return buildProductCarouselBlock(
+    tier,
+    FOUNDATION_PRODUCTS[tier],
+    foundationResultsCopyForCarousel(tier, { switched }),
+    "foundation",
+  );
 }
 
 function resultsCopy(label) {
@@ -2157,8 +2263,8 @@ function resultsCopy(label) {
   `;
 }
 
-function buildResultsBlock(label) {
-  return buildCarousel(label);
+function buildResultsBlock(label, switched = false) {
+  return buildCarousel(label, switched);
 }
 
 function escapeHtml(s) {
@@ -2208,7 +2314,11 @@ function genericAssistantReply() {
 
 function chatbotTieredFollowUpHtml() {
   const lane = chatPreferredTier === "luxury" ? "luxury" : "budget-friendly";
-  return `<div class="assistant-text">I still have you in the <strong>${lane}</strong> lane from earlier. Ask for another category (foundations, mascaras, concealers), a shade tweak, or where to shop—I will keep answers focused.</div>`;
+  const otherHint =
+    chatPreferredTier === "luxury"
+      ? "Want <strong>budget-friendly</strong> picks instead? Say something like <strong>“show me budget ones”</strong> or <strong>“drugstore options.”</strong>"
+      : "Want <strong>luxury</strong> picks instead? Try <strong>“show me luxury options”</strong> or <strong>“luxe / high-end ones.”</strong>";
+  return `<div class="assistant-text"><p style="margin:0 0 10px">I still have you in the <strong>${lane}</strong> lane from earlier. Ask for another category (foundations, mascaras, concealers), a shade tweak, or where to shop—I will keep answers focused.</p><p style="margin:0">${otherHint}</p></div>`;
 }
 
 function prepareVtoShellVisible() {
@@ -2411,7 +2521,7 @@ async function sendUserMessage(text, promptMeta) {
       const concern = chatSkinRoutineConcernId
         ? SKIN_DIAG_FAKE_CONCERNS.find((c) => c.id === chatSkinRoutineConcernId) || null
         : null;
-      appendAssistantBlock(skinRoutinePromptHtml(concern));
+      appendAssistantBlock(skinRoutinePromptHtml(concern, { showSkinResultsShortcut: !!skinDiagResultsPeekUrl }));
       flow = "idle";
       updateComposerTextState();
       return;
@@ -2458,8 +2568,10 @@ async function sendUserMessage(text, promptMeta) {
     chatAwaitingBudgetTierReply = false;
     if (pending === "foundation") {
       appendAssistantBlock(buildFoundationCarouselBlock(tierParsed));
+      chatLastProductCarouselCatalog = "foundation";
     } else {
       appendAssistantBlock(buildResultsBlock(labelForTier(tierParsed)));
+      chatLastProductCarouselCatalog = "lips";
     }
     flow = "idle";
     updateComposerTextState();
@@ -2525,6 +2637,29 @@ async function sendUserMessage(text, promptMeta) {
   flow = "busy";
   updateComposerTextState();
 
+  const switchedToTier =
+    chatMode === "makeup" && chatPreferredTier
+      ? parseOppositeTierCarouselIntent(trimmed, chatPreferredTier)
+      : null;
+
+  if (switchedToTier) {
+    await assistantThink();
+    if (myGen !== chatGenerationEpoch) return;
+    chatPreferredTier = switchedToTier;
+    const useFoundation =
+      isFoundationRequest(trimmed) || chatLastProductCarouselCatalog === "foundation";
+    if (useFoundation) {
+      appendAssistantBlock(buildFoundationCarouselBlock(switchedToTier, true));
+      chatLastProductCarouselCatalog = "foundation";
+    } else {
+      appendAssistantBlock(buildResultsBlock(labelForTier(switchedToTier), true));
+      chatLastProductCarouselCatalog = "lips";
+    }
+    flow = "idle";
+    updateComposerTextState();
+    return;
+  }
+
   if (!product) {
     await assistantThink();
     if (myGen !== chatGenerationEpoch) return;
@@ -2538,6 +2673,7 @@ async function sendUserMessage(text, promptMeta) {
     await assistantThink();
     if (myGen !== chatGenerationEpoch) return;
     appendAssistantBlock(buildFoundationCarouselBlock(chatPreferredTier));
+    chatLastProductCarouselCatalog = "foundation";
     flow = "idle";
     updateComposerTextState();
     return;
@@ -2824,6 +2960,9 @@ function closeProductDetail() {
 
 /** Remembered from the budget quick reply so follow-ups (e.g. foundations) match the same tier. */
 let chatPreferredTier = /** @type {'luxury'|'budget'|null} */ (null);
+
+/** Last product carousel the user saw (for “show the other lane” follow-ups). */
+let chatLastProductCarouselCatalog = /** @type {'lips'|'foundation'|null} */ (null);
 
 /** When set, the next Luxury / Budget chip picks this carousel instead of the default lip grid. */
 let chatPendingCarousel = /** @type {null|'foundation'} */ (null);
@@ -3691,8 +3830,6 @@ function waitForSelfieVideoSize() {
 /** Skin Diagnosis: post-countdown head pose prompts + matching half-oval progress ring. */
 async function startSkinDiagHeadTurnPhases() {
   resetSelfieGuidePath();
-  el.vtoSelfieGuidePill.textContent = "Look straight ahead";
-  await wait(1200);
   el.vtoSelfieGuidePill.textContent = "Turn your face to the right ›";
   await animateSelfieGuideHalf("right", 1900);
   resetSelfieGuidePathElement(el.vtoSelfieGuidePathRight);
@@ -3700,8 +3837,8 @@ async function startSkinDiagHeadTurnPhases() {
   await animateSelfieGuideHalf("left", 1900);
   resetSelfieGuidePathElement(el.vtoSelfieGuidePathLeft);
   resetSelfieGuidePathElement(el.vtoSelfieGuidePathRight);
-  el.vtoSelfieGuidePill.textContent = "Perfect. Hold still.";
-  await wait(700);
+  el.vtoSelfieGuidePill.textContent = "Look straight ahead";
+  await wait(1100);
   el.vtoSelfieGuidePill.textContent = "";
 }
 
@@ -3928,6 +4065,28 @@ function hideSkinDiagResultsPanel() {
   skinDiagResultsSelectedId = null;
 }
 
+function reopenSkinDiagResultsFromChat() {
+  if (!skinDiagResultsPeekUrl) return;
+  closeProductDetail();
+  stopVtoCameraStream();
+  hideVtoTryOnPanel();
+  clearSkinDiagPostQuizTimer();
+  hideSkinDiagLoadingPanel();
+  hideSkinDiagQuestionnairePanel();
+  el.vtoSelfieStubPanel.hidden = true;
+  el.vtoSelfieCameraPanel.hidden = true;
+  el.vtoSelfieConfirmPanel.hidden = true;
+  el.vtoTermsPanel.hidden = true;
+  el.vtoLiveStubPanel.hidden = true;
+  el.vtoFlow.hidden = false;
+  el.vtoFlow.setAttribute("aria-hidden", "false");
+  vtoSkinBrandExperienceActive = true;
+  skinDiagFlowActive = false;
+  setVtoComposerChrome(false);
+  syncVtoExperienceBrandUi();
+  showSkinDiagResultsPanel(skinDiagResultsPeekUrl);
+}
+
 function finishSkinDiagFlowToChat() {
   clearSkinDiagPostQuizTimer();
   hideSkinDiagLoadingPanel();
@@ -3943,7 +4102,7 @@ function openSkinDiagConcernInChat(concernId) {
   finishSkinDiagFlowToChat();
   chatAwaitingSkinRoutineChoice = true;
   chatSkinRoutineConcernId = concernId;
-  appendAssistantBlock(skinRoutinePromptHtml(concern));
+  appendAssistantBlock(skinRoutinePromptHtml(concern, { showSkinResultsShortcut: true }));
 }
 
 function applySkinDiagResultsZoom() {
@@ -4021,6 +4180,21 @@ function mountSkinDiagResultsMarkers() {
   syncSkinDiagResultsMarkersUi();
 }
 
+/**
+ * Interpolates the concern score-ring blue from lighter (lowest) to base (highest).
+ * @param {number} score
+ * @param {number} minScore
+ * @param {number} maxScore
+ */
+function skinDiagScoreProgressColor(score, minScore, maxScore) {
+  const base = { r: 130, g: 130, b: 221 }; // #8282dd
+  const light = { r: 201, g: 201, b: 241 }; // #c9c9f1
+  const range = maxScore - minScore;
+  const ratio = range <= 0 ? 1 : Math.min(1, Math.max(0, (score - minScore) / range));
+  const mix = (lo, hi) => Math.round(lo + (hi - lo) * ratio);
+  return `rgb(${mix(light.r, base.r)}, ${mix(light.g, base.g)}, ${mix(light.b, base.b)})`;
+}
+
 /** @param {string} imageUrl */
 function mountSkinDiagResultsCards(imageUrl) {
   const rail = el.vtoSkinDiagResultsCards;
@@ -4028,7 +4202,10 @@ function mountSkinDiagResultsCards(imageUrl) {
   rail.replaceChildren();
   const r = 22;
   const circum = 2 * Math.PI * r;
-  for (const c of SKIN_DIAG_FAKE_CONCERNS) {
+  const concerns = [...SKIN_DIAG_FAKE_CONCERNS].sort((a, b) => b.score - a.score);
+  const maxScore = concerns.length ? concerns[0].score : 0;
+  const minScore = concerns.length ? concerns[concerns.length - 1].score : 0;
+  for (const c of concerns) {
     const pct = Math.min(1, c.score / c.scoreMax);
     const dash = circum * pct;
     const wrap = document.createElement("div");
@@ -4086,6 +4263,7 @@ function mountSkinDiagResultsCards(imageUrl) {
     if (body) body.textContent = c.blurb;
     const num = wrap.querySelector(".vto-skin-diag-results__card-score-num");
     if (num) num.textContent = String(c.score);
+    wrap.style.setProperty("--sd-score-progress", skinDiagScoreProgressColor(c.score, minScore, maxScore));
     wrap.addEventListener("click", (e) => {
       if (e.target.closest(".vto-skin-diag-results__card-arrow")) return;
       selectSkinDiagConcern(c.id);
@@ -4126,6 +4304,7 @@ function showSkinDiagResultsPanel(imageUrl) {
   setVtoComposerChrome(false);
   el.vtoSkinDiagResultsPanel.hidden = false;
   el.vtoSkinDiagResultsPanel.setAttribute("aria-hidden", "false");
+  skinDiagResultsPeekUrl = imageUrl;
   requestAnimationFrame(() => el.vtoSkinDiagResultsClose?.focus());
 }
 
@@ -4432,6 +4611,11 @@ function goVtoStepAfterConsent() {
 
 function initVtoFlow() {
   el.chatView.addEventListener("click", (e) => {
+    if (e.target.closest("[data-skin-diag-results-reopen]")) {
+      e.preventDefault();
+      reopenSkinDiagResultsFromChat();
+      return;
+    }
     const btn = e.target.closest(".vto-open");
     if (!btn) return;
     const card = btn.closest(".product-card");
