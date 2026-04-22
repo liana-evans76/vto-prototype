@@ -964,8 +964,17 @@ let tryOnSliderAborter = null;
 const TRYON_OUTER_MOUTH_IDX = [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291, 375, 321, 405, 314, 17, 84, 181, 91, 146];
 
 /** Alternate compare images for VTO before/after toggle. */
-const TRYON_REFERENCE_BEFORE_IMAGE = "assets/tryon-group1-before.png";
-const TRYON_REFERENCE_AFTER_IMAGE = "assets/tryon-group2-after.png";
+const TRYON_REFERENCE_BEFORE_IMAGE = "assets/vto-model-original.png";
+const TRYON_REFERENCE_DEFAULT_AFTER_IMAGE = "assets/vto-model-shade-1.png";
+const TRYON_REFERENCE_SHADE_SWATCHES = [
+  { hex: "#BA717C", label: "Shade 1", image: "assets/vto-model-shade-1.png" },
+  { hex: "#DF868D", label: "Shade 2", image: "assets/vto-model-shade-2.png" },
+  { hex: "#AF736E", label: "Shade 3", image: "assets/vto-model-shade-3.png" },
+  { hex: "#AD6085", label: "Shade 4", image: "assets/vto-model-shade-4.png" },
+  { hex: "#DA8E80", label: "Shade 5", image: "assets/vto-model-shade-5.png" },
+  { hex: "#FC88C1", label: "Shade 6", image: "assets/vto-model-shade-6.png" },
+  { hex: "#9B4A71", label: "Shade 7", image: "assets/vto-model-shade-7.png" },
+];
 
 /** Sample face used when the user types the “VTO” chat shortcut (same asset as reference model). */
 const VTO_CHAT_SHORTCUT_SELFIE = "assets/tryon-reference-model.png";
@@ -3157,8 +3166,18 @@ function mixHex(a, b, t) {
   });
 }
 
+/** @param {string | undefined} hex */
+function getTryOnReferenceAfterImage(hex) {
+  const n = String(hex || "").trim().toUpperCase();
+  const hit = TRYON_REFERENCE_SHADE_SWATCHES.find((s) => s.hex.toUpperCase() === n);
+  return hit ? hit.image : TRYON_REFERENCE_DEFAULT_AFTER_IMAGE;
+}
+
 /** @param {typeof PRODUCTS.luxury[0]} p */
 function buildTryOnShades(p) {
+  if (vtoSelectedProductKey?.catalog === "lips") {
+    return TRYON_REFERENCE_SHADE_SWATCHES.map((s) => ({ hex: s.hex, label: s.label }));
+  }
   // Keep the palette intentionally muted (dusty rose / mauve family) to match the calmer carousel treatment.
   const base = mixHex(p.swatch, "#b97a85", 0.2);
   const tones = [
@@ -3288,8 +3307,9 @@ function drawTryOnFallbackMouth(ctx, w, h, hex) {
 function syncTryOnReferenceModeUi() {
   const selfieSrc = vtoSelfiePreviewUrl || sessionPersistedSelfieUrl;
   if (tryOnUseReferenceModel) {
+    const activeHex = tryOnShadeList[tryOnShadeIndex]?.hex;
     el.vtoTryOnBefore.style.backgroundImage = `url(${JSON.stringify(TRYON_REFERENCE_BEFORE_IMAGE)})`;
-    el.vtoTryOnAfterBase.style.backgroundImage = `url(${JSON.stringify(TRYON_REFERENCE_AFTER_IMAGE)})`;
+    el.vtoTryOnAfterBase.style.backgroundImage = `url(${JSON.stringify(getTryOnReferenceAfterImage(activeHex))})`;
   } else {
     if (!selfieSrc) return;
     const bg = `url(${JSON.stringify(selfieSrc)})`;
