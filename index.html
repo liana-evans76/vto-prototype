@@ -552,11 +552,15 @@
 
             <div id="vtoTryOnPanel" class="vto-flow__panel vto-flow__panel--tryon" hidden aria-hidden="true">
               <div class="vto-tryon__viewport" id="vtoTryOnViewport" style="--vto-split: 50">
-                <div id="vtoTryOnBefore" class="vto-tryon__bg" aria-hidden="true"></div>
+                <div class="vto-tryon__face-stage" aria-hidden="true">
+                  <div id="vtoTryOnBefore" class="vto-tryon__bg" aria-hidden="true"></div>
+                </div>
                 <div class="vto-tryon__after-stack">
                   <div id="vtoTryOnAfterWrap" class="vto-tryon__after-wrap">
-                    <div id="vtoTryOnAfterBase" class="vto-tryon__bg vto-tryon__bg--dup" aria-hidden="true"></div>
-                    <canvas id="vtoTryOnLipCanvas" class="vto-tryon__lip-canvas" width="2" height="2" aria-hidden="true"></canvas>
+                    <div class="vto-tryon__face-stage vto-tryon__face-stage--after">
+                      <div id="vtoTryOnAfterBase" class="vto-tryon__bg vto-tryon__bg--dup" aria-hidden="true"></div>
+                      <canvas id="vtoTryOnLipCanvas" class="vto-tryon__lip-canvas" width="2" height="2" aria-hidden="true"></canvas>
+                    </div>
                   </div>
                   <div class="vto-tryon__divider" aria-hidden="true">
                     <div id="vtoTryOnSliderTrack" class="vto-tryon__divider-line"></div>

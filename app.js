@@ -954,6 +954,9 @@ let tryOnShadeContextKey = /** @type {string | null} */ (null);
 /** When true, try-on uses the provided reference model image. */
 let tryOnUseReferenceModel = false;
 
+/** Lip try-on with fixed shade carousel: before = original stock photo, after = per-shade stock photo (not canvas lip paint). */
+let tryOnUsesStockShadePhotos = false;
+
 /** @type {ResizeObserver | null} */
 let tryOnResizeObserver = null;
 
@@ -966,6 +969,7 @@ const TRYON_OUTER_MOUTH_IDX = [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291, 
 /** Alternate compare images for VTO before/after toggle. */
 const TRYON_REFERENCE_BEFORE_IMAGE = "assets/vto-model-original.png";
 const TRYON_REFERENCE_DEFAULT_AFTER_IMAGE = "assets/vto-model-shade-1.png";
+/** Stock portraits: `vto-model-original.png` + `vto-model-shade-1.png`…`7.png` are all 809×1024. */
 const TRYON_REFERENCE_SHADE_SWATCHES = [
   { hex: "#BA717C", label: "Shade 1", image: "assets/vto-model-shade-1.png" },
   { hex: "#DF868D", label: "Shade 2", image: "assets/vto-model-shade-2.png" },
@@ -3209,6 +3213,8 @@ function hideVtoTryOnPanel() {
   el.vtoTryOnPanel.hidden = true;
   el.vtoTryOnPanel.setAttribute("aria-hidden", "true");
   tryOnUseReferenceModel = false;
+  tryOnUsesStockShadePhotos = false;
+  el.vtoTryOnViewport?.classList.remove("vto-tryon__viewport--user-selfie");
   el.vtoTryOnPanel.classList.remove("vto-flow__panel--tryon-alt");
   el.vtoTryOnModeToggle.classList.remove("is-active");
   el.vtoTryOnModeToggle.setAttribute("aria-pressed", "false");
@@ -3223,6 +3229,9 @@ function attachTryOnResizeObserver() {
   tryOnResizeObserver = new ResizeObserver(() => {
     if (el.vtoTryOnPanel.hidden) return;
     layoutTryOnLipCanvas();
+    if (tryOnUsesStockShadePhotos || tryOnUseReferenceModel) {
+      applyTryOnReferenceStockAlignmentTransforms();
+    }
     drawTryOnLipShade();
   });
   tryOnResizeObserver.observe(wrap);
@@ -3304,9 +3313,22 @@ function drawTryOnFallbackMouth(ctx, w, h, hex) {
   ctx.globalCompositeOperation = "source-over";
 }
 
+/** Before + all shade PNGs share 809×1024 — same `cover` scale; clear any legacy transforms. */
+function applyTryOnReferenceStockAlignmentTransforms() {
+  if (!(tryOnUsesStockShadePhotos || tryOnUseReferenceModel)) return;
+  if (!TRYON_REFERENCE_SHADE_SWATCHES[tryOnShadeIndex]) return;
+  const wrap = el.vtoTryOnAfterWrap;
+  if (!wrap || wrap.clientWidth <= 0 || wrap.clientHeight <= 0) return;
+
+  el.vtoTryOnBefore.style.transform = "";
+  el.vtoTryOnBefore.style.transformOrigin = "";
+  el.vtoTryOnAfterBase.style.transform = "";
+  el.vtoTryOnAfterBase.style.transformOrigin = "";
+}
+
 function syncTryOnReferenceModeUi() {
   const selfieSrc = vtoSelfiePreviewUrl || sessionPersistedSelfieUrl;
-  if (tryOnUseReferenceModel) {
+  if (tryOnUsesStockShadePhotos || tryOnUseReferenceModel) {
     const activeHex = tryOnShadeList[tryOnShadeIndex]?.hex;
     el.vtoTryOnBefore.style.backgroundImage = `url(${JSON.stringify(TRYON_REFERENCE_BEFORE_IMAGE)})`;
     el.vtoTryOnAfterBase.style.backgroundImage = `url(${JSON.stringify(getTryOnReferenceAfterImage(activeHex))})`;
@@ -3316,14 +3338,29 @@ function syncTryOnReferenceModeUi() {
     el.vtoTryOnBefore.style.backgroundImage = bg;
     el.vtoTryOnAfterBase.style.backgroundImage = bg;
   }
-  const pos = tryOnUseReferenceModel ? "center top" : "center top";
-  el.vtoTryOnBefore.style.backgroundPosition = pos;
-  el.vtoTryOnAfterBase.style.backgroundPosition = pos;
+
+  el.vtoTryOnBefore.style.marginTop = "";
+  if (tryOnUsesStockShadePhotos || tryOnUseReferenceModel) {
+    const row = TRYON_REFERENCE_SHADE_SWATCHES[tryOnShadeIndex];
+    el.vtoTryOnBefore.style.backgroundPosition = "center top";
+    el.vtoTryOnAfterBase.style.backgroundPosition = row?.afterBgPosition || "center top";
+    el.vtoTryOnAfterBase.style.marginTop = "";
+    applyTryOnReferenceStockAlignmentTransforms();
+  } else {
+    el.vtoTryOnBefore.style.backgroundPosition = "center 10%";
+    el.vtoTryOnAfterBase.style.backgroundPosition = "center 10%";
+    el.vtoTryOnAfterBase.style.marginTop = "";
+    el.vtoTryOnBefore.style.transform = "";
+    el.vtoTryOnBefore.style.transformOrigin = "";
+    el.vtoTryOnAfterBase.style.transform = "";
+    el.vtoTryOnAfterBase.style.transformOrigin = "";
+  }
+
   el.vtoTryOnPanel.classList.toggle("vto-flow__panel--tryon-alt", tryOnUseReferenceModel);
   el.vtoTryOnModeToggle.classList.toggle("is-active", tryOnUseReferenceModel);
   el.vtoTryOnModeToggle.setAttribute("aria-pressed", tryOnUseReferenceModel ? "true" : "false");
 
-  if (tryOnUseReferenceModel) {
+  if (tryOnUsesStockShadePhotos || tryOnUseReferenceModel) {
     tryOnCachedLandmarks = null;
     const ctx = el.vtoTryOnLipCanvas.getContext("2d");
     if (ctx) ctx.clearRect(0, 0, el.vtoTryOnLipCanvas.width, el.vtoTryOnLipCanvas.height);
@@ -3337,6 +3374,11 @@ function syncTryOnReferenceOverlayShade() {
 }
 
 function drawTryOnLipShade() {
+  if (tryOnUsesStockShadePhotos) {
+    const ctx = el.vtoTryOnLipCanvas.getContext("2d");
+    if (ctx) ctx.clearRect(0, 0, el.vtoTryOnLipCanvas.width, el.vtoTryOnLipCanvas.height);
+    return;
+  }
   if (tryOnUseReferenceModel) {
     syncTryOnReferenceOverlayShade();
     return;
@@ -3410,10 +3452,17 @@ async function runTryOnFaceLandmarks() {
   }
 }
 
+function syncTryOnViewportFaceFraming() {
+  const vp = el.vtoTryOnViewport;
+  if (!vp) return;
+  vp.classList.toggle("vto-tryon__viewport--user-selfie", !tryOnUsesStockShadePhotos);
+}
+
 /** @param {typeof PRODUCTS.luxury[0]} p */
 function applyTryOnProductChrome(p) {
   const k = vtoSelectedProductKey;
   tryOnShadeContextKey = k ? `${k.catalog}:${k.tier}:${k.index}` : null;
+  tryOnUsesStockShadePhotos = false;
   el.vtoTryOnMiniTitle.textContent = p.title;
   const selfieForMini = vtoSelfiePreviewUrl || sessionPersistedSelfieUrl;
   if (el.vtoTryOnMiniPhoto) {
@@ -3434,6 +3483,7 @@ function applyTryOnProductChrome(p) {
       el.vtoTryOnMiniThumb.classList.remove("vto-tryon__mini-thumb--selfie-under");
       el.vtoTryOnMiniThumb.style.backgroundImage = "";
     }
+    syncTryOnViewportFaceFraming();
     return;
   }
   el.vtoTryOnShades.hidden = false;
@@ -3442,10 +3492,17 @@ function applyTryOnProductChrome(p) {
     el.vtoTryOnMiniThumb.classList.remove("vto-tryon__mini-thumb--selfie-under");
     el.vtoTryOnMiniThumb.style.backgroundImage = "";
   }
+  const selfieForStock = vtoSelfiePreviewUrl || sessionPersistedSelfieUrl;
+  const isUserCapturedSelfie =
+    typeof selfieForStock === "string" &&
+    (selfieForStock.startsWith("blob:") || selfieForStock.startsWith("data:"));
+  /** Stock model PNG before/after only when not using a real camera/upload selfie (blob/data URL). */
+  tryOnUsesStockShadePhotos = k?.catalog === "lips" && !!selfieForStock && !isUserCapturedSelfie;
   tryOnShadeList = buildTryOnShades(p);
   tryOnShadeIndex = 0;
   syncTryOnMiniShadeRow();
   renderTryOnShadeButtons();
+  syncTryOnViewportFaceFraming();
 }
 
 function syncTryOnMiniShadeRow() {
@@ -3481,6 +3538,9 @@ function selectTryOnShade(i) {
     j += 1;
   }
   syncTryOnMiniShadeRow();
+  if (tryOnUsesStockShadePhotos || tryOnUseReferenceModel) {
+    syncTryOnReferenceModeUi();
+  }
   drawTryOnLipShade();
 }
 
@@ -3524,66 +3584,97 @@ function initTryOnSlider() {
   let scrubPointerId = null;
   /** @type {boolean} */
   let scrubMouse = false;
+  /** Knob is centered on the seam — map click X to seam would jump; drag by delta from grab instead. */
+  let scrubKnobDeltaMode = false;
+  /** @type {number} */
+  let scrubGrabClientX = 0;
+  /** @type {number} */
+  let scrubGrabSplit = 50;
 
-  const onPointer = (clientX) => {
-    const r = scrubRoot.getBoundingClientRect();
-    if (r.width <= 0) return;
-    const x = Math.max(0, Math.min(r.width, clientX - r.left));
-    setTryOnSplit((x / r.width) * 100);
+  const readTryOnSplit = () => {
+    const v = getComputedStyle(vp).getPropertyValue("--vto-split").trim();
+    const n = Number.parseFloat(v);
+    return Number.isFinite(n) ? n : 50;
   };
 
-  const stopScrub = (e) => {
-    if (scrubPointerId !== null && e.pointerId === scrubPointerId) {
-      try {
-        if (typeof vp.hasPointerCapture === "function" && vp.hasPointerCapture(e.pointerId)) {
-          vp.releasePointerCapture(e.pointerId);
-        }
-      } catch {
-        //
-      }
-      scrubPointerId = null;
+  /** Seam X is `(100 - split)%` from left (see `--vto-split` + clip). Map pointer X so handle follows cursor. */
+  const splitFromClientX = (clientX) => {
+    const r = scrubRoot.getBoundingClientRect();
+    if (r.width <= 0) return null;
+    const x = Math.max(0, Math.min(r.width, clientX - r.left));
+    return 100 - (x / r.width) * 100;
+  };
+
+  const onPointerAbsolute = (clientX) => {
+    const s = splitFromClientX(clientX);
+    if (s !== null) setTryOnSplit(s);
+  };
+
+  const onPointerMove = (clientX) => {
+    const r = scrubRoot.getBoundingClientRect();
+    if (r.width <= 0) return;
+    if (scrubKnobDeltaMode) {
+      const deltaPct = ((clientX - scrubGrabClientX) / r.width) * 100;
+      setTryOnSplit(scrubGrabSplit - deltaPct);
+    } else {
+      const s = splitFromClientX(clientX);
+      if (s !== null) setTryOnSplit(s);
     }
   };
 
-  const onWindowMove = (e) => {
-    if (scrubPointerId !== e.pointerId) return;
+  const endScrubSession = () => {
+    scrubKnobDeltaMode = false;
+  };
+
+  const stopScrubPointer = (/** @type {PointerEvent} */ e) => {
+    if (scrubPointerId === null || e.pointerId !== scrubPointerId) return;
+    scrubPointerId = null;
+    endScrubSession();
+  };
+
+  /** Document capture: moves still fire when pointer capture retargets away from `window` (common on touch). */
+  const onDocPointerMove = (/** @type {PointerEvent} */ e) => {
+    if (scrubPointerId === null || scrubPointerId !== e.pointerId) return;
     e.preventDefault();
-    onPointer(e.clientX);
+    onPointerMove(e.clientX);
   };
 
   const stopMouseScrub = () => {
     scrubMouse = false;
+    endScrubSession();
   };
 
-  const onWindowMouseMove = (e) => {
+  const onDocMouseMove = (/** @type {MouseEvent} */ e) => {
     if (!scrubMouse) return;
     e.preventDefault();
-    onPointer(e.clientX);
+    onPointerMove(e.clientX);
   };
 
-  window.addEventListener("pointermove", onWindowMove, { signal, passive: false, capture: true });
-  window.addEventListener("pointerup", stopScrub, { signal, capture: true });
-  window.addEventListener("pointercancel", stopScrub, { signal, capture: true });
-  window.addEventListener("mousemove", onWindowMouseMove, { signal, passive: false, capture: true });
-  window.addEventListener("mouseup", stopMouseScrub, { signal, capture: true });
+  document.addEventListener("pointermove", onDocPointerMove, { signal, passive: false, capture: true });
+  document.addEventListener("pointerup", stopScrubPointer, { signal, capture: true });
+  document.addEventListener("pointercancel", stopScrubPointer, { signal, capture: true });
+  document.addEventListener("mousemove", onDocMouseMove, { signal, passive: false, capture: true });
+  document.addEventListener("mouseup", stopMouseScrub, { signal, capture: true });
 
-  vp.addEventListener(
-    "lostpointercapture",
-    (e) => {
-      if (scrubPointerId !== null && e.pointerId === scrubPointerId) scrubPointerId = null;
-    },
-    { signal }
-  );
+  const clearScrubPointerIfMatch = (/** @type {PointerEvent} */ e) => {
+    if (scrubPointerId !== null && e.pointerId === scrubPointerId) {
+      scrubPointerId = null;
+      endScrubSession();
+    }
+  };
+  knob.addEventListener("lostpointercapture", clearScrubPointerIfMatch, { signal });
+  vp.addEventListener("lostpointercapture", clearScrubPointerIfMatch, { signal });
 
   vp.addEventListener(
     "pointerdown",
     (e) => {
       if (e.pointerType === "mouse" && e.button !== 0) return;
       if (e.target.closest(".vto-tryon__dock") || e.target.closest(".vto-tryon__close-frost") || e.target.closest(".vto-tryon__mode-toggle")) return;
-      if (knob.contains(e.target)) return;
+      if (knob.contains(/** @type {Node} */ (e.target))) return;
       scrubPointerId = e.pointerId;
+      scrubKnobDeltaMode = false;
       e.preventDefault();
-      onPointer(e.clientX);
+      onPointerAbsolute(e.clientX);
       try {
         vp.setPointerCapture(e.pointerId);
       } catch {
@@ -3599,10 +3690,11 @@ function initTryOnSlider() {
     (e) => {
       if (e.button !== 0) return;
       if (e.target.closest(".vto-tryon__dock") || e.target.closest(".vto-tryon__close-frost") || e.target.closest(".vto-tryon__mode-toggle")) return;
-      if (knob.contains(e.target)) return;
+      if (knob.contains(/** @type {Node} */ (e.target))) return;
       scrubMouse = true;
+      scrubKnobDeltaMode = false;
       e.preventDefault();
-      onPointer(e.clientX);
+      onPointerAbsolute(e.clientX);
     },
     { signal }
   );
@@ -3614,11 +3706,17 @@ function initTryOnSlider() {
       e.stopPropagation();
       e.preventDefault();
       scrubPointerId = e.pointerId;
-      onPointer(e.clientX);
+      scrubKnobDeltaMode = true;
+      scrubGrabClientX = e.clientX;
+      scrubGrabSplit = readTryOnSplit();
       try {
-        vp.setPointerCapture(e.pointerId);
+        knob.setPointerCapture(e.pointerId);
       } catch {
-        //
+        try {
+          vp.setPointerCapture(e.pointerId);
+        } catch {
+          //
+        }
       }
     },
     { signal }
@@ -3631,7 +3729,9 @@ function initTryOnSlider() {
       e.stopPropagation();
       e.preventDefault();
       scrubMouse = true;
-      onPointer(e.clientX);
+      scrubKnobDeltaMode = true;
+      scrubGrabClientX = e.clientX;
+      scrubGrabSplit = readTryOnSplit();
     },
     { signal }
   );
@@ -3651,9 +3751,8 @@ function showVtoTryOn() {
   hideSkinDiagQuestionnairePanel();
   el.vtoTryOnPanel.hidden = false;
   el.vtoTryOnPanel.setAttribute("aria-hidden", "false");
-  setTryOnReferenceMode(false);
-
   applyTryOnProductChrome(getVtoProduct().product);
+  setTryOnReferenceMode(false);
   setTryOnSplit(50);
   initTryOnSlider();
   attachTryOnResizeObserver();
@@ -3661,8 +3760,15 @@ function showVtoTryOn() {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       layoutTryOnLipCanvas();
-      void runTryOnFaceLandmarks().then(() => {
+      if (tryOnUsesStockShadePhotos || tryOnUseReferenceModel) {
+        applyTryOnReferenceStockAlignmentTransforms();
+      }
+      const landmarkPromise = tryOnUsesStockShadePhotos ? Promise.resolve() : runTryOnFaceLandmarks();
+      void landmarkPromise.then(() => {
         layoutTryOnLipCanvas();
+        if (tryOnUsesStockShadePhotos || tryOnUseReferenceModel) {
+          applyTryOnReferenceStockAlignmentTransforms();
+        }
         drawTryOnLipShade();
       });
     });

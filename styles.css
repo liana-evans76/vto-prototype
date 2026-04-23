@@ -2007,9 +2007,28 @@ textarea {
   position: absolute;
   inset: 0;
   --vto-split: 50;
+  --vto-tryon-face-scale: 1.26;
+  --vto-tryon-face-translate-y: 0%;
+  overflow: hidden;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
+}
+
+/* Real selfie: light zoom + modest upward shift; bg anchor in app.js. */
+.vto-tryon__viewport--user-selfie {
+  --vto-tryon-face-scale: 1.32;
+  --vto-tryon-face-translate-y: -14%;
+}
+
+/* Zoom face so forehead sits near the top; keeps before bg + after bg + lip canvas aligned. */
+.vto-tryon__face-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transform: scale(var(--vto-tryon-face-scale)) translateY(var(--vto-tryon-face-translate-y));
+  transform-origin: center top;
 }
 
 .vto-tryon__bg {
@@ -2054,7 +2073,8 @@ textarea {
   bottom: 0;
   width: 2px;
   margin-left: -1px;
-  left: calc(var(--vto-split) * 1%);
+  /* --vto-split is pointer X%; clip removes (100 - split)% from the left, so the seam is here. */
+  left: calc(100% - var(--vto-split) * 1%);
   background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12);
   pointer-events: none;
@@ -2065,7 +2085,7 @@ textarea {
   top: auto;
   /* Position from bottom: safe-area dock pad + shades row + dock gap + mini card + 24px clearance. */
   bottom: calc(max(12px, env(safe-area-inset-bottom, 0px)) + 78px + 12px + 78px + 24px);
-  left: calc(var(--vto-split) * 1%);
+  left: calc(100% - var(--vto-split) * 1%);
   transform: translateX(-50%);
   z-index: 2;
   width: 32px;
