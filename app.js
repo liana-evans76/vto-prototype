@@ -4277,18 +4277,24 @@ function openSkinDiagConcernInChat(concernId) {
 function applySkinDiagResultsZoom() {
   const pan = el.vtoSkinDiagResultsPan;
   if (!pan) return;
+  const stage = el.vtoSkinDiagResultsStage;
+  const stageH = stage?.clientHeight || 0;
+  const compact = stageH > 0 && stageH < 760;
+  const veryCompact = stageH > 0 && stageH < 700;
+  const baseScale = veryCompact ? 1.42 : compact ? 1.3 : 1.14;
+  const baseOriginY = veryCompact ? 38 : compact ? 41 : 45;
   const concern = skinDiagResultsSelectedId
     ? SKIN_DIAG_FAKE_CONCERNS.find((c) => c.id === skinDiagResultsSelectedId)
     : null;
   if (!concern) {
     pan.style.setProperty("--sd-origin-x", "50%");
-    pan.style.setProperty("--sd-origin-y", "50%");
-    pan.style.setProperty("--sd-scale", "1");
+    pan.style.setProperty("--sd-origin-y", `${baseOriginY}%`);
+    pan.style.setProperty("--sd-scale", String(baseScale));
     return;
   }
   pan.style.setProperty("--sd-origin-x", `${concern.zoom.x * 100}%`);
   pan.style.setProperty("--sd-origin-y", `${skinDiagFaceMapY(concern.zoom.y) * 100}%`);
-  pan.style.setProperty("--sd-scale", String(concern.zoom.scale));
+  pan.style.setProperty("--sd-scale", String(Math.max(concern.zoom.scale, baseScale)));
 }
 
 function syncSkinDiagResultsMarkersUi() {

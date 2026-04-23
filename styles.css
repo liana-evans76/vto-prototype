@@ -2021,6 +2021,29 @@ textarea {
   --vto-tryon-face-translate-y: -14%;
 }
 
+/* Short screens need more headroom above dock/cards. */
+@media (max-height: 760px) {
+  .vto-tryon__viewport--user-selfie {
+    --vto-tryon-face-scale: 1.4;
+    --vto-tryon-face-translate-y: -19%;
+  }
+
+  .vto-skin-diag-results__cards-wrap {
+    padding: 10px 10px max(10px, env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-height: 700px) {
+  .vto-tryon__viewport--user-selfie {
+    --vto-tryon-face-scale: 1.48;
+    --vto-tryon-face-translate-y: -24%;
+  }
+
+  .vto-skin-diag-results__cards-wrap {
+    padding: 8px 8px max(8px, env(safe-area-inset-bottom));
+  }
+}
+
 /* Zoom face so forehead sits near the top; keeps before bg + after bg + lip canvas aligned. */
 .vto-tryon__face-stage {
   position: absolute;
