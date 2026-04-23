@@ -1950,16 +1950,23 @@ function tagsHTML(tags) {
     .join("");
 }
 
+/** @param {string} brand */
+function productCardBrandPrefix(brand) {
+  if (brand === "Yves Saint Laurent") return "YSL";
+  return brand;
+}
+
 function productCardHTML(p, tier, index, catalog = "lips") {
   const brandAttr = p.brand === "Maybelline" ? ` data-brand="maybelline"` : "";
+  const cardTitle = `${productCardBrandPrefix(p.brand)} ${p.title}`.trim();
   return `
-    <article class="product-card" aria-label="${escapeAttr(p.title)}" data-tier="${tier}" data-product-index="${index}" data-catalog="${catalog}"${brandAttr}>
+    <article class="product-card" aria-label="${escapeAttr(cardTitle)}" data-tier="${tier}" data-product-index="${index}" data-catalog="${catalog}"${brandAttr}>
       <div class="product-card__header" aria-hidden="true"></div>
       <div class="product-card__content">
         <div class="product-card__media">
           <img class="product-card__photo" src="${escapeAttr(p.cardImage)}" alt="${escapeAttr(p.title)}" width="120" height="120" loading="lazy" decoding="async" />
         </div>
-        <h3 class="product-card__title">${escapeHtml(p.title)}</h3>
+        <h3 class="product-card__title">${escapeHtml(cardTitle)}</h3>
         <div class="product-card__tag-row">
           <span class="tag-chip product-card__shade-tag">
             <span class="tag-chip__dot" style="background:${escapeAttr(p.swatch)};"></span>
@@ -1972,7 +1979,7 @@ function productCardHTML(p, tier, index, catalog = "lips") {
           <span>Virtual Try-On</span>
           <img class="product-card__vto-mirror-icon" src="${VTO_MIRROR_SRC}" width="20" height="20" alt="" aria-hidden="true" decoding="async" />
         </button>
-        <button type="button" class="product-card__learn" aria-label="Learn more about ${escapeAttr(p.title)}">Learn more</button>
+        <button type="button" class="product-card__learn" aria-label="Learn more about ${escapeAttr(cardTitle)}">Learn more</button>
       </div>
     </article>`;
 }
@@ -3374,6 +3381,8 @@ function syncTryOnReferenceOverlayShade() {
 }
 
 function drawTryOnLipShade() {
+  // Product request: never paint synthetic lip color on user selfies.
+  // Keep stock/reference compare visuals, but remove canvas overlay for real-face mode.
   if (tryOnUsesStockShadePhotos) {
     const ctx = el.vtoTryOnLipCanvas.getContext("2d");
     if (ctx) ctx.clearRect(0, 0, el.vtoTryOnLipCanvas.width, el.vtoTryOnLipCanvas.height);
@@ -3383,15 +3392,9 @@ function drawTryOnLipShade() {
     syncTryOnReferenceOverlayShade();
     return;
   }
-  const canvas = el.vtoTryOnLipCanvas;
-  const hex = tryOnShadeList[tryOnShadeIndex]?.hex;
-  if (!canvas || !hex) return;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
-  const w = canvas.width;
-  const h = canvas.height;
-  if (tryOnCachedLandmarks && drawTryOnLipsFromLandmarks(ctx, tryOnCachedLandmarks, w, h, hex)) return;
-  drawTryOnFallbackMouth(ctx, w, h, hex);
+  const ctx = el.vtoTryOnLipCanvas.getContext("2d");
+  if (ctx) ctx.clearRect(0, 0, el.vtoTryOnLipCanvas.width, el.vtoTryOnLipCanvas.height);
+  return;
 }
 
 async function ensureTryOnFaceLandmarker() {
